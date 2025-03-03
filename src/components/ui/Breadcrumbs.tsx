@@ -5,6 +5,7 @@ import {
   useColorModeValue,
   Flex,
   Icon,
+  Container,
 } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useLocation } from "react-router-dom";
@@ -50,41 +51,37 @@ const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
   }
 
   return (
-    <Flex
-      w="full"
-      py={4}
-      px={{ base: 4, md: 8 }}
-      bg={useColorModeValue("white", "gray.800")}
-      borderColor={useColorModeValue("gray.200", "gray.700")}
-    >
-      <Breadcrumb
-        spacing="8px"
-        separator={<ChevronRightIcon color="gray.500" />}
-      >
-        <BreadcrumbItem>
-          <BreadcrumbLink as={RouterLink} to="/">
-            Home
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-
-        {breadcrumbItems.map((item, index) => (
-          <BreadcrumbItem
-            key={item.href}
-            isCurrentPage={index === breadcrumbItems.length - 1}
-          >
-            <BreadcrumbLink
-              as={RouterLink}
-              to={item.href}
-              isCurrentPage={index === breadcrumbItems.length - 1}
-              fontWeight={
-                index === breadcrumbItems.length - 1 ? "semibold" : "normal"
-              }
-            >
-              {item.label}
+    <Flex w="full" py={4} bg={useColorModeValue("white", "gray.800")}>
+      <Container maxW="container.xl">
+        <Breadcrumb
+          spacing="8px"
+          separator={<ChevronRightIcon color="gray.500" />}
+        >
+          <BreadcrumbItem>
+            <BreadcrumbLink as={RouterLink} to="/">
+              Home
             </BreadcrumbLink>
           </BreadcrumbItem>
-        ))}
-      </Breadcrumb>
+
+          {breadcrumbItems.map((item, index) => (
+            <BreadcrumbItem
+              key={item.href}
+              isCurrentPage={index === breadcrumbItems.length - 1}
+            >
+              <BreadcrumbLink
+                as={RouterLink}
+                to={item.href}
+                isCurrentPage={index === breadcrumbItems.length - 1}
+                fontWeight={
+                  index === breadcrumbItems.length - 1 ? "semibold" : "normal"
+                }
+              >
+                {item.label}
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+          ))}
+        </Breadcrumb>
+      </Container>
     </Flex>
   );
 };
