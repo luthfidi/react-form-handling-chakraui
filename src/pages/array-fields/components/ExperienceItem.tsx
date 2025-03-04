@@ -21,7 +21,6 @@ import {
   UseFormRegister,
 } from "react-hook-form";
 import {
-  ExperienceItem as ExperienceItemType,
   ArrayFieldsFormData,
 } from "../../../schemas/arrayFieldsSchema";
 

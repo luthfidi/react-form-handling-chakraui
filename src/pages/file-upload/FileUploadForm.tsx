@@ -57,7 +57,6 @@ export default function FileUploadForm() {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<FileUploadFormData>({
     resolver: zodResolver(fileUploadSchema),
     defaultValues: {

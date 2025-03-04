@@ -25,7 +25,6 @@ import {
   AlertDescription,
   CloseButton,
   SimpleGrid,
-  IconButton,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { FaListUl } from "react-icons/fa";
@@ -60,7 +59,6 @@ export default function ArrayFieldsForm() {
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<ArrayFieldsFormData>({
     resolver: zodResolver(arrayFieldsSchema),
     defaultValues: {
