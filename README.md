@@ -1,54 +1,67 @@
-# React + TypeScript + Vite
+# React Form Mastery
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive guide to building complex forms with React Hook Form and Zod schema validation. This project demonstrates various form patterns and validation techniques with a clean, professional UI built using Chakra UI.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **TypeScript** for type safety and better developer experience
+- **React Hook Form** for efficient form state management
+- **Zod** for powerful schema validation
+- **Chakra UI** for beautiful and accessible UI components
+- **Syntax highlighting** for code examples
 
-## Expanding the ESLint configuration
+## Demo Forms (Completed)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Basic Registration Form** - Learn fundamental form validation including required fields, email format, and password matching.
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+2. **Multi-step Form** - Create wizard-style forms with state persistence between steps using Zustand.
+
+3. **Dependent Fields Form** - Build forms with conditional fields that appear or change based on values entered in other fields.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 14.x or later
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/react-form-handling.git
+cd react-form-handling
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Visit `http://localhost:5173` to view the application.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Usage
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+Each form example includes:
+- A working demo to interact with
+- Code examples showing the implementation
+- Explanations of key concepts
+- Zod schema definitions
+
+Navigate between different form examples using the cards on the homepage. Each example focuses on specific patterns and techniques for handling form state and validation.
+
+## Tech Stack
+
+- React 18+
+- TypeScript
+- Vite
+- React Hook Form
+- Zod
+- Chakra UI
+- React Router
+- Zustand (for state management)
+
+## Note
+
+This project currently includes 3 form examples (Basic Registration, Multi-step Form, and Dependent Fields). Additional form examples will be added in the future to cover more advanced scenarios like array fields, file uploads, nested objects, and more.
