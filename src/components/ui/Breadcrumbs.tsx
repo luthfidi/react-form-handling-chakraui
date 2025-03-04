@@ -51,7 +51,7 @@ const Breadcrumbs = ({ items }: BreadcrumbsProps) => {
   }
 
   return (
-    <Flex w="full" py={4} bg={useColorModeValue("white", "gray.800")}>
+    <Flex w="full" py={4} bg={useColorModeValue("white", "gray.1000")}>
       <Container maxW="container.xl">
         <Breadcrumb
           spacing="8px"
