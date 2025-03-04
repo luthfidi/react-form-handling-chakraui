@@ -9,7 +9,7 @@ import {
   Badge,
   Icon,
 } from "@chakra-ui/react";
-import { ReactNode, ReactElement } from "react";
+import { ReactNode } from "react";
 import { IconType } from "react-icons";
 
 interface FormPageLayoutProps {

@@ -4,12 +4,10 @@ import {
   BreadcrumbLink,
   useColorModeValue,
   Flex,
-  Icon,
   Container,
 } from "@chakra-ui/react";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useLocation } from "react-router-dom";
-import { Fragment } from "react";
 
 interface BreadcrumbsProps {
   items?: { label: string; href: string }[];

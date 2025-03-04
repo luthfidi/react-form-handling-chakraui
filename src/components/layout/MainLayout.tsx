@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Box, Container, Flex, useColorModeValue } from "@chakra-ui/react";
+import { Box, Flex, useColorModeValue } from "@chakra-ui/react";
 import Header from "./Header";
 import Footer from "./Footer";
 import Breadcrumbs from "../ui/Breadcrumbs";

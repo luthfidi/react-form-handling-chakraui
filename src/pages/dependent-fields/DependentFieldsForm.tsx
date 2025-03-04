@@ -509,7 +509,7 @@ return (
                   <AlertTitle mt={4} mb={1} fontSize="lg">
                     Form Submitted Successfully!
                   </AlertTitle>
-                  <AlertDescription maxWidth="sm" color={textColor}>
+                  <AlertDescription maxWidth="sm" color={mutedTextColor}>
                     Your information has been submitted successfully.
                   </AlertDescription>
 

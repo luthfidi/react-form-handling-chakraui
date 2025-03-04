@@ -6,11 +6,6 @@ import {
   VStack,
   useColorModeValue,
   Container,
-  Flex,
-  Button,
-  Icon,
-  Divider,
-  Stack,
 } from "@chakra-ui/react";
 import FormCard from "../components/ui/FormCard";
 import {
@@ -24,9 +19,7 @@ import {
   FaCode,
   FaMagic,
   FaGlobe,
-  FaArrowRight,
 } from "react-icons/fa";
-import { Link as RouterLink } from "react-router-dom";
 
 export default function HomePage() {
   return (
