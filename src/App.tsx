@@ -4,7 +4,7 @@ import HomePage from "./pages/HomePage";
 
 // Lazy load the form pages for better performance
 import { lazy, Suspense } from "react";
-import { Box, Spinner, Center } from "@chakra-ui/react";
+import { Spinner, Center } from "@chakra-ui/react";
 
 // Lazy loaded components
 const BasicRegistrationForm = lazy(

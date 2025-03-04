@@ -172,7 +172,7 @@ const onSubmit = (data: BasicRegistrationFormData) => {
                   <AlertTitle mt={4} mb={1} fontSize="lg">
                     Registration Successful!
                   </AlertTitle>
-                  <AlertDescription maxWidth="sm" color={textColor}>
+                  <AlertDescription maxWidth="sm" color={mutedTextColor}>
                     Your account has been created successfully. You can now log
                     in with your credentials.
                   </AlertDescription>
