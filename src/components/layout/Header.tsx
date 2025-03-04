@@ -1,4 +1,3 @@
-// src/components/layout/Header.tsx
 import {
   Box,
   Flex,
@@ -294,12 +293,12 @@ const NAV_ITEMS: Array<NavItem> = [
       {
         label: "Zod",
         subLabel: "TypeScript-first schema validation",
-        href: "https://github.com/colinhacks/zod",
+        href: "https://zod.dev/",
       },
     ],
   },
   {
     label: "GitHub",
-    href: "https://github.com/yourusername/react-form-handling",
+    href: "https://github.com/luthfidi/react-form-handling-chakraui",
   },
 ];

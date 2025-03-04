@@ -10,7 +10,7 @@ import {
   Flex,
   Heading,
 } from "@chakra-ui/react";
-import { FaGithub, FaTwitter, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -38,7 +38,7 @@ export default function Footer() {
 
           <Stack align={"flex-start"}>
             <Heading as="h5" size="sm">
-              Resources
+              Core Resources
             </Heading>
             <Link href={"https://react-hook-form.com"} isExternal>
               React Hook Form
@@ -56,25 +56,26 @@ export default function Footer() {
 
           <Stack align={"flex-start"}>
             <Heading as="h5" size="sm">
-              Legal
+              Additional Resources
             </Heading>
-            <Link href={"#"}>Privacy Policy</Link>
-            <Link href={"#"}>Terms of Service</Link>
-            <Link href={"#"}>Cookies Policy</Link>
+            <Link href={"https://reactrouter.com"} isExternal>React Route</Link>
+            <Link href={"https://zustand.docs.pmnd.rs/getting-started/introduction"} isExternal>Zustand</Link>
+            <Link href={"https://tanstack.com/query/latest"} isExternal>TanStack Query</Link>
+            <Link href={"https://react-syntax-highlighter.github.io/react-syntax-highlighter/demo/"}isExternal>React Syntax Highlighter</Link>
           </Stack>
 
           <Stack align={"flex-start"}>
             <Heading as="h5" size="sm">
-              Follow Us
+              Follow Author
             </Heading>
             <Flex gap={4}>
-              <Link href={"https://github.com"} isExternal>
+              <Link href={"https://github.com/luthfidi"} isExternal>
                 <Icon as={FaGithub} boxSize={5} />
               </Link>
-              <Link href={"https://twitter.com"} isExternal>
-                <Icon as={FaTwitter} boxSize={5} />
+              <Link href={"https://instagram.com/luthfidi_"} isExternal>
+                <Icon as={FaInstagram} boxSize={5} />
               </Link>
-              <Link href={"https://linkedin.com"} isExternal>
+              <Link href={"https://www.linkedin.com/in/luthfi-hadi"} isExternal>
                 <Icon as={FaLinkedin} boxSize={5} />
               </Link>
             </Flex>
