@@ -7,7 +7,6 @@ import {
   HStack,
   useColorModeValue,
   Icon,
-  Flex,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
@@ -66,22 +65,10 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
     if (hasNumber) score++;
     if (hasSpecial) score++;
 
-    // Add bonus point for diverse character usage
-    const diversityBonus =
-      (hasUppercase ? 1 : 0) +
-        (hasLowercase ? 1 : 0) +
-        (hasNumber ? 1 : 0) +
-        (hasSpecial ? 1 : 0) >=
-        3 && password.length >= 10;
-
-    if (diversityBonus) {
-      score = Math.min(score + 1, 5);
-    }
-
     return score;
   }, [validation, password]);
 
-  // Get strength level based on score
+  // Check the strength level determination
   const strengthLevel = useMemo(() => {
     if (!password) return strengthLevels[0];
     return (
@@ -110,7 +97,7 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
 
   return (
     <VStack spacing={2} align="stretch" width="100%" mt={1}>
-      <Flex justify="space-between" align="center">
+      <HStack justify="space-between" align="center">
         <Text fontSize="xs" color={mutedTextColor} fontWeight="medium">
           Password Strength:
         </Text>
@@ -121,7 +108,7 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
         >
           {strengthLevel.label}
         </Text>
-      </Flex>
+      </HStack>
 
       <Progress
         value={progressPercent}

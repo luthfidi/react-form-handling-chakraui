@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Box,
   FormControl,
@@ -7,10 +7,6 @@ import {
   HStack,
   Input,
   Button,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   Text,
   VStack,
   useColorModeValue,
@@ -46,7 +42,7 @@ interface DateRangePickerProps {
   register: UseFormRegister<any>;
   startDateError?: FieldError;
   endDateError?: FieldError;
-  rangeError?: string; // Changed from string | null to string | undefined
+  rangeError?: string;
   minDays?: number;
   maxDays?: number;
   isRequired?: boolean;
@@ -90,18 +86,16 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   const textColor = useColorModeValue("gray.700", "gray.200");
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
   const errorColor = useColorModeValue("red.500", "red.400");
-  const borderColor = useColorModeValue("gray.200", "gray.600");
   const popoverBg = useColorModeValue("white", "gray.700");
-  const hoverBg = useColorModeValue("gray.100", "gray.600");
 
   // Use React Hook Form controllers
-  const { field: startDateField, fieldState: startDateFieldState } =
+  const { field: startDateField } =
     useController({
       name: startDateName,
       control,
     });
 
-  const { field: endDateField, fieldState: endDateFieldState } = useController({
+  const { field: endDateField } = useController({
     name: endDateName,
     control,
   });
@@ -109,11 +103,6 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   // Format date to string (YYYY-MM-DD)
   const formatDate = (date: Date): string => {
     return date.toISOString().split("T")[0];
-  };
-
-  // Parse string to date
-  const parseDate = (dateStr: string): Date => {
-    return dateStr ? new Date(dateStr) : new Date();
   };
 
   // Calculate days between two dates
@@ -302,24 +291,15 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
       <VStack spacing={3} align="stretch">
         <HStack>
           {/* Preset selector */}
-          <Menu>
-            <MenuButton
-              as={Button}
-              rightIcon={<ChevronDownIcon />}
-              size="sm"
-              variant="outline"
-              width="150px"
-            >
-              Presets
-            </MenuButton>
-            <MenuList>
-              {presetRanges.map((preset, index) => (
-                <MenuItem key={index} onClick={() => applyPreset(preset)}>
-                  {preset.label}
-                </MenuItem>
-              ))}
-            </MenuList>
-          </Menu>
+          <Button
+            rightIcon={<ChevronDownIcon />}
+            variant="outline"
+            size="sm"
+            width="150px"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            Presets
+          </Button>
 
           {/* Calendar button - opens popover */}
           <Popover

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   FormControl,
   FormLabel,
@@ -9,7 +9,6 @@ import {
   Flex,
   Text,
   useColorModeValue,
-  Box,
   Icon,
 } from "@chakra-ui/react";
 import {
@@ -41,34 +40,6 @@ const cardTypes = [
   { type: "discover", pattern: /^6(?:011|5)/, icon: FaCcDiscover },
   { type: "generic", pattern: /^.*/, icon: FaCreditCard },
 ];
-
-// Luhn algorithm for credit card validation
-const validateLuhn = (value: string): boolean => {
-  if (!value) return false;
-
-  // Remove all non-digit characters
-  const cardNumber = value.replace(/\D/g, "");
-
-  if (cardNumber.length < 13) return false;
-
-  let sum = 0;
-  let double = false;
-
-  // Starting from the right
-  for (let i = cardNumber.length - 1; i >= 0; i--) {
-    let digit = parseInt(cardNumber.charAt(i), 10);
-
-    if (double) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-
-    sum += digit;
-    double = !double;
-  }
-
-  return sum % 10 === 0;
-};
 
 // Format card number with spaces
 const formatCardNumber = (value: string): string => {
@@ -109,31 +80,29 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
   error,
   isRequired = false,
   onCardTypeChange,
-  placeholder = "1234 5678 9012 3456",
+  placeholder = "4929 9223 1698 6350",
   helperText,
 }) => {
   const [formattedValue, setFormattedValue] = useState("");
   const [cardType, setCardType] = useState("generic");
-  const [isValid, setIsValid] = useState(false);
 
   const textColor = useColorModeValue("gray.700", "gray.200");
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
-  const iconColor = useColorModeValue("gray.500", "gray.400");
   const validIconColor = useColorModeValue("green.500", "green.400");
 
   // Get the CardIcon component based on detected type
   const CardIcon =
     cardTypes.find((card) => card.type === cardType)?.icon || FaCreditCard;
 
-  // Handle value change
+  // Handle input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
-    const numbersOnly = inputValue.replace(/\D/g, "");
+    const digitsOnly = inputValue.replace(/\D/g, "");
 
     // Limit input length based on card type
-    const isAmex = /^3[47]/.test(numbersOnly);
+    const isAmex = /^3[47]/.test(digitsOnly);
     const maxLength = isAmex ? 15 : 16;
-    const truncatedValue = numbersOnly.slice(0, maxLength);
+    const truncatedValue = digitsOnly.slice(0, maxLength);
 
     // Format the value with spaces
     const formatted = formatCardNumber(truncatedValue);
@@ -142,7 +111,7 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
     // Update native input (for React Hook Form)
     e.target.value = truncatedValue;
 
-    // Get and set card type
+    // Detect and set card type
     const detectedType = detectCardType(truncatedValue);
     if (detectedType !== cardType) {
       setCardType(detectedType);
@@ -150,13 +119,12 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
         onCardTypeChange(detectedType);
       }
     }
-
-    // Validate the card number
-    setIsValid(validateLuhn(truncatedValue) && truncatedValue.length >= 13);
   };
 
   // Register the input with React Hook Form
-  const { onChange, ...rest } = register(name);
+  const { onChange, ...rest } = register(name, {
+    setValueAs: (value: string) => value.replace(/\D/g, ""),
+  });
 
   return (
     <FormControl isInvalid={!!error} isRequired={isRequired}>
@@ -186,8 +154,11 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
             <Icon
               as={CardIcon}
               boxSize={6}
-              color={isValid ? validIconColor : iconColor}
-              mr={1}
+              color={
+                formattedValue.replace(/\s/g, "").length >= 13
+                  ? validIconColor
+                  : "gray.400"
+              }
             />
           </Flex>
         </InputRightElement>
@@ -200,15 +171,6 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
       )}
 
       {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-
-      {!error &&
-        formattedValue &&
-        !isValid &&
-        formattedValue.replace(/\s/g, "").length >= 13 && (
-          <Text fontSize="xs" color="red.500" mt={1}>
-            Invalid card number
-          </Text>
-        )}
     </FormControl>
   );
 };

@@ -10,7 +10,6 @@ import {
   Stack,
   Text,
   useColorModeValue,
-  Collapse,
   Divider,
 } from "@chakra-ui/react";
 import {
@@ -78,6 +77,33 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
   const borderColor = useColorModeValue("gray.200", "gray.600");
   const bgColor = useColorModeValue("gray.50", "gray.700");
+
+  // Evaluate a single condition
+  const evaluateCondition = (
+    condition: Condition,
+    values: Record<string, any>
+  ): boolean => {
+    switch (condition.type) {
+      case "equals":
+        return values[condition.field] === condition.value;
+      case "notEquals":
+        return values[condition.field] !== condition.value;
+      case "contains":
+        return String(values[condition.field]).includes(condition.value);
+      case "greaterThan":
+        return Number(values[condition.field]) > condition.value;
+      case "lessThan":
+        return Number(values[condition.field]) < condition.value;
+      case "isEmpty":
+        return !values[condition.field] || values[condition.field] === "";
+      case "isNotEmpty":
+        return !!values[condition.field] && values[condition.field] !== "";
+      case "custom":
+        return condition.predicate(values);
+      default:
+        return false;
+    }
+  };
 
   // Evaluate multiple conditions (AND logic)
   const evaluateConditions = (

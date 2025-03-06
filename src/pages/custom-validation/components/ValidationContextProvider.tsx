@@ -86,7 +86,7 @@ export const ValidationContextProvider: React.FC<ValidationProviderProps> = ({
   const validationCache = useRef<ValidationCache>({});
 
   // Store custom validators
-  const [customValidators, setCustomValidators] =
+  const [ , setCustomValidators] =
     useState<
       Record<
         string,

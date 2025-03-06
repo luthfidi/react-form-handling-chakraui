@@ -14,7 +14,6 @@ import {
   Icon,
   Box,
   Tooltip,
-  useToast,
   VStack,
   HStack,
   Collapse,
@@ -92,18 +91,13 @@ const UsernameValidator: React.FC<UsernameValidatorProps> = ({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [validationIssues, setValidationIssues] = useState<string[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const toast = useToast();
 
   // Colors
   const textColor = useColorModeValue("gray.700", "gray.200");
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
   const greenColor = useColorModeValue("green.500", "green.400");
   const redColor = useColorModeValue("red.500", "red.400");
-  const yellowColor = useColorModeValue("yellow.500", "yellow.400");
   const suggestionBg = useColorModeValue("gray.50", "gray.700");
-  const successBg = useColorModeValue("green.50", "green.900");
-  const warningBg = useColorModeValue("yellow.50", "yellow.900");
-  const errorBg = useColorModeValue("red.50", "red.900");
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -254,18 +248,12 @@ const UsernameValidator: React.FC<UsernameValidatorProps> = ({
         return !isUsernameTaken;
       } catch (error) {
         console.error("Error checking username:", error);
-        toast({
-          title: "Error checking username",
-          status: "error",
-          duration: 3000,
-          isClosable: true,
-        });
         return null;
       } finally {
         setIsChecking(false);
       }
     },
-    [minLength, onAvailabilityCheck, onStrengthChange, blacklist, toast]
+    [minLength, onAvailabilityCheck, onStrengthChange, blacklist]
   );
 
   // Debounced handler for username changes

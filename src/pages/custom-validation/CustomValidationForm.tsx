@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, FieldError } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
@@ -25,7 +25,6 @@ import {
   CloseButton,
   SimpleGrid,
   Checkbox,
-  InputGroup,
 } from "@chakra-ui/react";
 import { FaCode } from "react-icons/fa";
 import FormPageLayout from "../../components/layout/FormPageLayout";
@@ -33,6 +32,7 @@ import CodeBlock from "../../components/ui/CodeBlock";
 import {
   customValidationSchema,
   formValues,
+  CustomValidationFormData,
 } from "../../schemas/customValidationSchema";
 import PasswordStrengthMeter from "./components/PasswordStrengthMeter";
 import CreditCardInput from "./components/CreditCardInput";
@@ -43,36 +43,12 @@ import ValidationContextProvider, {
 } from "./components/ValidationContextProvider";
 import ConditionalValidation from "./components/ConditionalValidation";
 
-// Form data type
-type FormData = {
-  username: string;
-  password: string;
-  email: string;
-  website: string;
-  creditCard: string;
-  bio: string;
-  country: string;
-  zipCode: string;
-  age: number;
-  termsAccepted: boolean;
-  startDate: string;
-  endDate: string;
-  employmentType: string;
-  companyName?: string;
-  yearsExperience?: number;
-  industry?: string;
-  educationLevel?: string;
-  schoolName?: string;
-  graduationYear?: number;
-};
-
-// Blacklisted words for username
-const BLACKLISTED_WORDS = ["admin", "root", "system", "moderator"];
-
 export default function CustomValidationForm() {
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
-  const [formData, setFormData] = useState<FormData | null>(null);
-  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [formData, setFormData] = useState<CustomValidationFormData | null>(
+    null
+  );
+  const [ , setPasswordStrength] = useState(0);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
   );
@@ -92,10 +68,9 @@ export default function CustomValidationForm() {
     handleSubmit,
     control,
     watch,
-    setValue,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<FormData>({
+  } = useForm<CustomValidationFormData>({
     resolver: zodResolver(customValidationSchema),
     defaultValues: {
       username: "",
@@ -233,7 +208,7 @@ export default function CustomValidationForm() {
     },
   ];
 
-  const onSubmit = (data: FormData) => {
+  const onSubmit = (data: CustomValidationFormData) => {
     // Check custom validations not handled by Zod
     if (usernameAvailable === false) {
       return;
@@ -243,11 +218,16 @@ export default function CustomValidationForm() {
       return;
     }
 
+    const sanitizedData = {
+      ...data,
+      creditCard: "",
+    };
+
     // Simulate API call
     console.log("Form submitted:", data);
 
     setTimeout(() => {
-      setFormData(data);
+      setFormData(sanitizedData);
       setIsSubmitSuccessful(true);
 
       // Scroll to success message
@@ -548,7 +528,7 @@ export const ValidationProvider = ({ children }) => {
                           register={register}
                           error={errors.username}
                           isRequired={true}
-                          blacklist={BLACKLISTED_WORDS}
+                          blacklist={["admin", "root", "system", "moderator"]}
                           onAvailabilityCheck={setUsernameAvailable}
                           showStrengthMeter={true}
                           placeholder="Choose a unique username"
@@ -856,10 +836,12 @@ export const ValidationProvider = ({ children }) => {
                       </FormControl>
 
                       <ConditionalValidation
-                        fields={conditionalFields as any}
+                        fields={conditionalFields}
                         register={register}
                         control={control}
-                        errors={errors as any}
+                        errors={
+                          errors as Record<string, FieldError | undefined>
+                        }
                         title="Employment Details"
                         description={`Additional information based on your employment status: ${employmentType}`}
                       />
