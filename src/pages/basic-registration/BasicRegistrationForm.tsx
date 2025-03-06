@@ -395,14 +395,14 @@ const onSubmit = (data: BasicRegistrationFormData) => {
             </VStack>
           </TabPanel>
           <TabPanel>
-            <VStack align="start" spacing={6}>
+            <VStack align="start" spacing={4}>
               <Text color={textColor}>
                 This form demonstrates the basics of form validation with React
                 Hook Form and Zod. Key concepts covered include:
               </Text>
 
               <Box as="ul" pl={5} alignSelf="stretch" color={textColor}>
-                <Box as="li" mt={2}>
+                <Box as="li">
                   Required field validation
                 </Box>
                 <Box as="li" mt={2}>

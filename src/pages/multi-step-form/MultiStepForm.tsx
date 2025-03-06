@@ -163,7 +163,7 @@ export const useMultiStepFormStore = create(
             </Container>
           </TabPanel>
           <TabPanel>
-            <VStack align="start" spacing={6}>
+            <VStack align="start" spacing={4}>
               <Text color={textColor}>
                 This form demonstrates building a multi-step form with state
                 persistence between steps using React Hook Form, Zod, and
@@ -171,7 +171,7 @@ export const useMultiStepFormStore = create(
               </Text>
 
               <Box as="ul" pl={5} alignSelf="stretch" color={textColor}>
-                <Box as="li" mt={2}>
+                <Box as="li">
                   Step-by-step form progression with validation at each step
                 </Box>
                 <Box as="li" mt={2}>

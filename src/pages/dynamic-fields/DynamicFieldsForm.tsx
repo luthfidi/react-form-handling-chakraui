@@ -230,7 +230,7 @@ export default function DynamicFieldsForm() {
 
           {/* Documentation Tab */}
           <TabPanel>
-            <VStack spacing={6} align="start" w="full" py={5}>
+            <VStack spacing={4} align="start" w="full" py={5}>
               <Text fontSize="xl" fontWeight="bold" color={textColor}>
                 Dynamic Form Generation Documentation
               </Text>
@@ -240,7 +240,7 @@ export default function DynamicFieldsForm() {
               </Text>
 
               <Box as="ul" pl={5} color={textColor}>
-                <Box as="li" mt={2}>
+                <Box as="li">
                   Choose from predefined form templates or start from scratch
                 </Box>
                 <Box as="li" mt={2}>

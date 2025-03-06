@@ -70,6 +70,7 @@ export default function FormCard({ title, description, icon, to, difficulty }: F
       </Box>
       
       <Badge 
+        variant={'subtle'}
         position="absolute" 
         top="4" 
         right="4" 

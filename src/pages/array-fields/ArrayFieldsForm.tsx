@@ -537,14 +537,14 @@ const {
             </VStack>
           </TabPanel>
           <TabPanel>
-            <VStack align="start" spacing={6}>
+            <VStack align="start" spacing={4}>
               <Text color={textColor}>
                 This form demonstrates how to handle dynamic arrays of fields.
                 The key concepts covered include:
               </Text>
 
               <Box as="ul" pl={5} alignSelf="stretch" color={textColor}>
-                <Box as="li" mt={2}>
+                <Box as="li">
                   Using React Hook Form's useFieldArray for array manipulations
                 </Box>
                 <Box as="li" mt={2}>

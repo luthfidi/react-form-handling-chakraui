@@ -728,7 +728,7 @@ return (
             </VStack>
           </TabPanel>
           <TabPanel>
-            <VStack align="start" spacing={6}>
+            <VStack align="start" spacing={4}>
               <Text color={textColor}>
                 This form demonstrates the implementation of
                 dependent/conditional fields based on user selection. Key
@@ -736,7 +736,7 @@ return (
               </Text>
 
               <Box as="ul" pl={5} alignSelf="stretch" color={textColor}>
-                <Box as="li" mt={2}>
+                <Box as="li">
                   Watching field values to conditionally render form sections
                 </Box>
                 <Box as="li" mt={2}>

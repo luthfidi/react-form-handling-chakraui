@@ -312,7 +312,7 @@ export const useI18nFormStore = create<I18nFormState>()(
           </TabPanel>
 
           <TabPanel>
-            <VStack align="start" spacing={8} py={5}>
+            <VStack align="start" spacing={6} py={5}>
               <Box>
                 <Heading as="h3" size="md" mb={4} color={textColor}>
                   Creating Internationalized Forms

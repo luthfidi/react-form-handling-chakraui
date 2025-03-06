@@ -471,7 +471,7 @@ export const fileUploadSchema = z.object({
           </TabPanel>
 
           <TabPanel>
-            <VStack spacing={8} align="stretch" py={5}>
+            <VStack spacing={6} align="stretch" py={5}>
               <Box>
                 <Heading size="md" mb={4} color={textColor}>
                   1. Zod Schema for File Validation
