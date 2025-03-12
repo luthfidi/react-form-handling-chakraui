@@ -58,7 +58,7 @@ export default function Footer() {
             <Heading as="h5" size="sm">
               Additional Resources
             </Heading>
-            <Link href={"https://reactrouter.com"} isExternal>React Route</Link>
+            <Link href={"https://reactrouter.com"} isExternal>React Router</Link>
             <Link href={"https://zustand.docs.pmnd.rs/getting-started/introduction"} isExternal>Zustand</Link>
             <Link href={"https://tanstack.com/query/latest"} isExternal>TanStack Query</Link>
             <Link href={"https://react-syntax-highlighter.github.io/react-syntax-highlighter/demo/"}isExternal>React Syntax Highlighter</Link>
