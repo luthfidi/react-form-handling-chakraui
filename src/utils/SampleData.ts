@@ -240,9 +240,8 @@ export const i18nFormSampleData = {
   name: "David Johnson",
   email: "david.johnson@example.com",
   phone: "+1 (555) 345-6789",
-  message:
-    "Hello, I'm interested in learning more about your services. Please contact me with additional information at your earliest convenience.",
-  preferredContact: "email",
+  message: "Hello, I'm interested in learning more about your services. Please contact me with additional information at your earliest convenience.",
+  preferredContact: "email" as "email" | "phone", // Fix the type here
   terms: true,
 };
 

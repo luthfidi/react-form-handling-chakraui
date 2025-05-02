@@ -1,3 +1,4 @@
+// InternationalizationForm.tsx - File utama
 import { useState, useRef, useEffect } from "react";
 import {
   Box,
@@ -19,8 +20,6 @@ import {
   CloseButton,
   Divider,
   Code,
-  Tooltip,
-  IconButton,
 } from "@chakra-ui/react";
 import { FaGlobe } from "react-icons/fa";
 import FormPageLayout from "../../components/layout/FormPageLayout";
@@ -30,19 +29,15 @@ import CodeBlock from "../../components/ui/CodeBlock";
 import {
   I18nFormData,
   uiTranslations,
+  LanguageCode,
 } from "../../schemas/internationalizationSchema";
 import { useI18nFormStore } from "../../store/i18nFormStore";
-import { i18nFormSampleData } from "../../utils/SampleData";
-import { MdAutoFixHigh } from "react-icons/md";
 
 export default function InternationalizationForm() {
   const { currentLanguage, detectBrowserLanguage } = useI18nFormStore();
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
   const [formData, setFormData] = useState<I18nFormData | null>(null);
   const alertRef = useRef<HTMLDivElement>(null);
-  const fillWithSampleData = () => {
-    reset(i18nFormSampleData);
-  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -55,6 +50,88 @@ export default function InternationalizationForm() {
   useEffect(() => {
     detectBrowserLanguage();
   }, [detectBrowserLanguage]);
+
+  // Create localized sample data based on language
+  const getLocalizedSampleData = (language: LanguageCode): I18nFormData => {
+    // Default data structure with common field structure
+    const base: I18nFormData = {
+      name: "",
+      email: "",
+      phone: "",
+      message: "",
+      preferredContact: "email" as "email" | "phone",
+      terms: true, // Always checked
+    };
+
+    // Language-specific data
+    switch (language) {
+      case "en":
+        return {
+          ...base,
+          name: "John Smith",
+          email: "john.smith@example.com",
+          phone: "+1 (555) 123-4567",
+          message:
+            "I'm interested in learning more about your services. Please contact me when convenient.",
+        };
+      case "id":
+        return {
+          ...base,
+          name: "Budi Santoso",
+          email: "budi.santoso@example.com",
+          phone: "+62 812-3456-7890",
+          message:
+            "Saya tertarik untuk mempelajari lebih lanjut tentang layanan Anda. Mohon hubungi saya saat memungkinkan.",
+        };
+      case "es":
+        return {
+          ...base,
+          name: "Carlos Rodríguez",
+          email: "carlos.rodriguez@example.com",
+          phone: "+34 612 345 678",
+          message:
+            "Estoy interesado en obtener más información sobre sus servicios. Por favor, contáctenme cuando sea conveniente.",
+        };
+      case "fr":
+        return {
+          ...base,
+          name: "Marie Dubois",
+          email: "marie.dubois@example.com",
+          phone: "+33 6 12 34 56 78",
+          message:
+            "Je suis intéressé(e) à en savoir plus sur vos services. Veuillez me contacter à votre convenance.",
+        };
+      case "de":
+        return {
+          ...base,
+          name: "Thomas Müller",
+          email: "thomas.mueller@example.com",
+          phone: "+49 151 1234 5678",
+          message:
+            "Ich interessiere mich für weitere Informationen über Ihre Dienstleistungen. Bitte kontaktieren Sie mich, wenn es Ihnen passt.",
+        };
+      case "ja":
+        return {
+          ...base,
+          name: "田中 太郎",
+          email: "tanaka.taro@example.com",
+          phone: "+81 90-1234-5678",
+          message:
+            "御社のサービスについてもっと詳しく知りたいと思っています。ご都合の良いときにご連絡ください。",
+        };
+      case "zh":
+        return {
+          ...base,
+          name: "李明",
+          email: "li.ming@example.com",
+          phone: "+86 138 1234 5678",
+          message:
+            "我有兴趣了解更多关于您公司服务的信息。请在方便的时候联系我。",
+        };
+      default:
+        return base;
+    }
+  };
 
   // Handle form submission
   const handleSubmitSuccess = (data: I18nFormData) => {
@@ -309,19 +386,6 @@ export const useI18nFormStore = create<I18nFormState>()(
                               {uiTranslations[currentLanguage].formDescription}
                             </Text>
                           </Box>
-                          <Tooltip
-                            label="Fill with sample data"
-                            placement="top"
-                          >
-                            <IconButton
-                              aria-label="Fill with sample data"
-                              icon={<MdAutoFixHigh />}
-                              size="sm"
-                              onClick={fillWithSampleData}
-                              colorScheme="blue"
-                              variant="ghost"
-                            />
-                          </Tooltip>
                         </Flex>
                       </Box>
 
@@ -332,7 +396,11 @@ export const useI18nFormStore = create<I18nFormState>()(
 
                     <Divider />
 
-                    <I18nForm onSubmitSuccess={handleSubmitSuccess} />
+                    <I18nForm
+                      onSubmitSuccess={handleSubmitSuccess}
+                      getLocalizedSampleData={getLocalizedSampleData}
+                      currentLanguage={currentLanguage}
+                    />
                   </VStack>
                 </Box>
               </VStack>

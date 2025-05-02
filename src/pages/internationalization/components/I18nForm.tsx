@@ -1,3 +1,4 @@
+// I18nForm.tsx - Komponen form dengan auto-fill yang diperbaiki
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,22 +18,30 @@ import {
   Stack,
   useColorModeValue,
   Divider,
+  IconButton,
+  Tooltip,
 } from "@chakra-ui/react";
+import { MdAutoFixHigh } from "react-icons/md";
 import {
   formFields,
   I18nField,
   I18nFormData,
   uiTranslations,
   createI18nSchema,
+  LanguageCode,
 } from "../../../schemas/internationalizationSchema";
-import { useI18nFormStore } from "../../../store/i18nFormStore";
 
 interface I18nFormProps {
   onSubmitSuccess: (data: I18nFormData) => void;
+  getLocalizedSampleData: (language: LanguageCode) => I18nFormData;
+  currentLanguage: LanguageCode;
 }
 
-const I18nForm: React.FC<I18nFormProps> = ({ onSubmitSuccess }) => {
-  const { currentLanguage } = useI18nFormStore();
+const I18nForm: React.FC<I18nFormProps> = ({
+  onSubmitSuccess,
+  getLocalizedSampleData,
+  currentLanguage,
+}) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get schema for current language
@@ -65,9 +74,9 @@ const I18nForm: React.FC<I18nFormProps> = ({ onSubmitSuccess }) => {
   // Watch preferred contact method for conditional validation
   const preferredContact = watch("preferredContact");
 
-  // Reset form when language changes
+  // Update form when language changes
   useEffect(() => {
-    // No need to reset, just update the resolver
+    // Existing form values will be preserved
   }, [currentLanguage]);
 
   // Handle form submission
@@ -80,6 +89,12 @@ const I18nForm: React.FC<I18nFormProps> = ({ onSubmitSuccess }) => {
     setIsSubmitting(false);
     onSubmitSuccess(data);
     reset();
+  };
+
+  // Fill form with localized sample data
+  const fillWithSampleData = () => {
+    const sampleData = getLocalizedSampleData(currentLanguage);
+    reset(sampleData);
   };
 
   // Render form field based on its type and language
@@ -221,7 +236,28 @@ const I18nForm: React.FC<I18nFormProps> = ({ onSubmitSuccess }) => {
       w="full"
       boxShadow="md"
       bg={useColorModeValue("white", "gray.800")}
+      position="relative"
     >
+      {/* Perbaikan button auto-fill dengan penempatan yang lebih akurat */}
+      <Box position="absolute" top={4} right={4} zIndex={1}>
+        <Tooltip
+          label={
+            uiTranslations[currentLanguage].fillSampleData ||
+            "Fill with sample data"
+          }
+          placement="left"
+        >
+          <IconButton
+            aria-label="Fill with sample data"
+            icon={<MdAutoFixHigh />}
+            size="md"
+            onClick={fillWithSampleData}
+            colorScheme="blue"
+            variant="ghost"
+          />
+        </Tooltip>
+      </Box>
+
       <VStack spacing={5} align="stretch">
         <VStack spacing={4} align="stretch">
           {formFields.map((field) => renderField(field))}

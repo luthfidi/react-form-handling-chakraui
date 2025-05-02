@@ -409,6 +409,7 @@ export const uiTranslations: Record<
     successDescription: string;
     formDataLabel: string;
     changeLanguage: string;
+    fillSampleData: string;
   }
 > = {
   en: {
@@ -421,6 +422,7 @@ export const uiTranslations: Record<
       "Thank you for contacting us. We will get back to you soon.",
     formDataLabel: "Submitted Data:",
     changeLanguage: "Change Language",
+    fillSampleData: "Fill with sample data",
   },
   id: {
     formTitle: "Hubungi Kami",
@@ -433,6 +435,7 @@ export const uiTranslations: Record<
       "Terima kasih telah menghubungi kami. Kami akan segera menghubungi Anda kembali.",
     formDataLabel: "Data yang Dikirim:",
     changeLanguage: "Ganti Bahasa",
+    fillSampleData: "Isi dengan data contoh",
   },
   es: {
     formTitle: "Contáctenos",
@@ -445,6 +448,7 @@ export const uiTranslations: Record<
       "Gracias por contactarnos. Nos pondremos en contacto con usted pronto.",
     formDataLabel: "Datos Enviados:",
     changeLanguage: "Cambiar Idioma",
+    fillSampleData: "Completar con datos de ejemplo",
   },
   fr: {
     formTitle: "Contactez-nous",
@@ -457,6 +461,7 @@ export const uiTranslations: Record<
       "Merci de nous avoir contactés. Nous vous répondrons bientôt.",
     formDataLabel: "Données Soumises:",
     changeLanguage: "Changer de Langue",
+    fillSampleData: "Remplir avec des données d'exemple",
   },
   de: {
     formTitle: "Kontaktieren Sie Uns",
@@ -469,6 +474,7 @@ export const uiTranslations: Record<
       "Vielen Dank für Ihre Kontaktaufnahme. Wir werden uns in Kürze bei Ihnen melden.",
     formDataLabel: "Übermittelte Daten:",
     changeLanguage: "Sprache Ändern",
+    fillSampleData: "Mit Beispieldaten ausfüllen",
   },
   ja: {
     formTitle: "お問い合わせ",
@@ -480,6 +486,7 @@ export const uiTranslations: Record<
       "お問い合わせいただきありがとうございます。まもなくご連絡いたします。",
     formDataLabel: "送信データ：",
     changeLanguage: "言語を変更",
+    fillSampleData: "サンプルデータを入力",
   },
   zh: {
     formTitle: "联系我们",
@@ -490,6 +497,7 @@ export const uiTranslations: Record<
     successDescription: "感谢您与我们联系。我们将尽快回复您。",
     formDataLabel: "提交的数据：",
     changeLanguage: "更改语言",
+    fillSampleData: "填入示例数据",
   },
 };
 
