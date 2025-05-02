@@ -42,8 +42,8 @@ A comprehensive guide to building complex forms with React Hook Form and Zod sch
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/react-form-handling.git
-cd react-form-handling
+git clone https://github.com/luthfidi/react-form-handling-chakraui
+cd react-form-handling-chakraui
 
 # Install dependencies
 npm install
