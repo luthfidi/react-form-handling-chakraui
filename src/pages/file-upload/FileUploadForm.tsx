@@ -39,11 +39,51 @@ import {
 } from "../../schemas/fileUploadSchema";
 import SingleFileUpload from "./components/SingleFileUpload";
 import MultiFileUpload from "./components/MultiFileUpload";
+import {
+  mockFileObject,
+  fileUploadFormSampleData,
+} from "../../utils/SampleData";
 
 export default function FileUploadForm() {
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
   const [formSummary, setFormSummary] = useState<any>(null);
   const successAlertRef = useRef<HTMLDivElement>(null);
+  const fillWithSampleData = () => {
+    // Basic fields - as any to bypass type checking temporarily
+    reset({
+      title: fileUploadFormSampleData.title,
+      description: fileUploadFormSampleData.description,
+      termsAccepted: fileUploadFormSampleData.termsAccepted,
+    } as any);
+
+    // Special handling for files - avoid type errors with safe checks
+    if (fileUploadFormSampleData.mockFiles) {
+      const { mockFiles } = fileUploadFormSampleData;
+
+      // Set profile image if available
+      if (mockFiles.profileImage) {
+        setValue("profileImage", mockFiles.profileImage as any);
+      }
+
+      // Set resume if available
+      if (mockFiles.resume) {
+        setValue("resume", mockFiles.resume as any);
+      }
+
+      // Set portfolio images if available
+      if (mockFiles.portfolioImages && mockFiles.portfolioImages.length > 0) {
+        setValue("portfolioImages", mockFiles.portfolioImages as any);
+      }
+
+      // Set additional documents if available
+      if (
+        mockFiles.additionalDocuments &&
+        mockFiles.additionalDocuments.length > 0
+      ) {
+        setValue("additionalDocuments", mockFiles.additionalDocuments as any);
+      }
+    }
+  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");

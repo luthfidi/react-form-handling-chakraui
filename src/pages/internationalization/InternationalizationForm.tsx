@@ -19,6 +19,8 @@ import {
   CloseButton,
   Divider,
   Code,
+  Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { FaGlobe } from "react-icons/fa";
 import FormPageLayout from "../../components/layout/FormPageLayout";
@@ -30,12 +32,17 @@ import {
   uiTranslations,
 } from "../../schemas/internationalizationSchema";
 import { useI18nFormStore } from "../../store/i18nFormStore";
+import { i18nFormSampleData } from "../../utils/SampleData";
+import { MdAutoFixHigh } from "react-icons/md";
 
 export default function InternationalizationForm() {
   const { currentLanguage, detectBrowserLanguage } = useI18nFormStore();
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
   const [formData, setFormData] = useState<I18nFormData | null>(null);
   const alertRef = useRef<HTMLDivElement>(null);
+  const fillWithSampleData = () => {
+    reset(i18nFormSampleData);
+  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -289,12 +296,33 @@ export const useI18nFormStore = create<I18nFormState>()(
                       gap={4}
                     >
                       <Box width="100%" textAlign="center">
-                        <Heading as="h2" size="lg" color={textColor}>
-                          {uiTranslations[currentLanguage].formTitle}
-                        </Heading>
-                        <Text color={mutedTextColor} mt={1}>
-                          {uiTranslations[currentLanguage].formDescription}
-                        </Text>
+                        <Flex
+                          justifyContent="space-between"
+                          alignItems="center"
+                          mb={4}
+                        >
+                          <Box width="100%" textAlign="center">
+                            <Heading as="h2" size="lg" color={textColor}>
+                              {uiTranslations[currentLanguage].formTitle}
+                            </Heading>
+                            <Text color={mutedTextColor} mt={1}>
+                              {uiTranslations[currentLanguage].formDescription}
+                            </Text>
+                          </Box>
+                          <Tooltip
+                            label="Fill with sample data"
+                            placement="top"
+                          >
+                            <IconButton
+                              aria-label="Fill with sample data"
+                              icon={<MdAutoFixHigh />}
+                              size="sm"
+                              onClick={fillWithSampleData}
+                              colorScheme="blue"
+                              variant="ghost"
+                            />
+                          </Tooltip>
+                        </Flex>
                       </Box>
 
                       <Box width="100%">

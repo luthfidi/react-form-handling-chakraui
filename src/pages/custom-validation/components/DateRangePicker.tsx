@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   FormControl,
@@ -20,6 +20,7 @@ import {
   IconButton,
   Flex,
   SimpleGrid,
+  Badge,
 } from "@chakra-ui/react";
 import { ChevronDownIcon, CalendarIcon } from "@chakra-ui/icons";
 import {
@@ -78,22 +79,21 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   onChange,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [rangeValidationMessage, setRangeValidationMessage] = useState<
-    string | null
-  >(null);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
+  const [rangeValidationMessage, setRangeValidationMessage] = useState<string | null>(null);
 
   // Colors
   const textColor = useColorModeValue("gray.700", "gray.200");
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
   const errorColor = useColorModeValue("red.500", "red.400");
   const popoverBg = useColorModeValue("white", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   // Use React Hook Form controllers
-  const { field: startDateField } =
-    useController({
-      name: startDateName,
-      control,
-    });
+  const { field: startDateField } = useController({
+    name: startDateName,
+    control,
+  });
 
   const { field: endDateField } = useController({
     name: endDateName,
@@ -103,6 +103,21 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
   // Format date to string (YYYY-MM-DD)
   const formatDate = (date: Date): string => {
     return date.toISOString().split("T")[0];
+  };
+
+  // Format date to locale string
+  const formatForDisplay = (dateStr: string): string => {
+    if (!dateStr) return "";
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch (e) {
+      return dateStr;
+    }
   };
 
   // Calculate days between two dates
@@ -193,6 +208,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     } else if (preset.type === "custom") {
       // Don't change dates, just open the popover
       setIsOpen(true);
+      setSelectedPreset("Custom");
       return;
     } else {
       // X days ago until today
@@ -202,6 +218,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     }
 
     updateDates(formatDate(startDate), formatDate(endDate));
+    setSelectedPreset(preset.label);
     setIsOpen(false);
   };
 
@@ -210,6 +227,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     const newStartDate = e.target.value;
     startDateField.onChange(newStartDate);
     validateRange(newStartDate, endDateField.value);
+    setSelectedPreset("Custom");
 
     if (onChange) {
       onChange({
@@ -223,6 +241,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     const newEndDate = e.target.value;
     endDateField.onChange(newEndDate);
     validateRange(startDateField.value, newEndDate);
+    setSelectedPreset("Custom");
 
     if (onChange) {
       onChange({
@@ -266,15 +285,39 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   // Format date range for display
   const getDisplayRange = (): string => {
-    if (!startDateField.value || !endDateField.value)
+    if (!startDateField.value && !endDateField.value)
       return "Select a date range";
 
-    const start = new Date(startDateField.value);
-    const end = new Date(endDateField.value);
+    if (startDateField.value && !endDateField.value)
+      return `From ${formatForDisplay(startDateField.value)}`;
+
+    if (!startDateField.value && endDateField.value)
+      return `Until ${formatForDisplay(endDateField.value)}`;
+
     const days = daysBetween(startDateField.value, endDateField.value);
 
-    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()} (${days} days)`;
+    return `${formatForDisplay(startDateField.value)} - ${formatForDisplay(
+      endDateField.value
+    )} (${days} days)`;
   };
+
+  // Set initial selected preset on mount if dates match a preset
+  useEffect(() => {
+    if (startDateField.value && endDateField.value) {
+      const days = daysBetween(startDateField.value, endDateField.value);
+
+      // Check if matches any preset
+      const preset = presetRanges.find(
+        (p) => p.days !== undefined && p.days === days
+      );
+
+      if (preset) {
+        setSelectedPreset(preset.label);
+      } else {
+        setSelectedPreset("Custom");
+      }
+    }
+  }, []);
 
   return (
     <FormControl
@@ -291,15 +334,46 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
       <VStack spacing={3} align="stretch">
         <HStack>
           {/* Preset selector */}
-          <Button
-            rightIcon={<ChevronDownIcon />}
-            variant="outline"
-            size="sm"
-            width="150px"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            Presets
-          </Button>
+          <Popover placement="bottom-start">
+            <PopoverTrigger>
+              <Button
+                rightIcon={<ChevronDownIcon />}
+                variant="outline"
+                size="sm"
+                width="150px"
+              >
+                {selectedPreset || "Presets"}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent p={0} width="200px" bg={popoverBg}>
+              <PopoverArrow />
+              <PopoverHeader borderBottomWidth="1px" fontWeight="medium">
+                Select a range
+              </PopoverHeader>
+              <PopoverBody p={0}>
+                <VStack spacing={0} align="stretch">
+                  {presetRanges.map((preset, idx) => (
+                    <Button
+                      key={idx}
+                      variant={
+                        selectedPreset === preset.label ? "solid" : "ghost"
+                      }
+                      colorScheme={
+                        selectedPreset === preset.label ? "brand" : "gray"
+                      }
+                      justifyContent="flex-start"
+                      size="sm"
+                      onClick={() => applyPreset(preset)}
+                      width="100%"
+                      borderRadius={0}
+                    >
+                      {preset.label}
+                    </Button>
+                  ))}
+                </VStack>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
 
           {/* Calendar button - opens popover */}
           <Popover
@@ -392,9 +466,17 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
           </Popover>
 
           {/* Selected range display */}
-          <Text color={mutedTextColor} fontSize="sm" flex={1}>
-            {getDisplayRange()}
-          </Text>
+          <Box
+            flex={1}
+            borderWidth="1px"
+            borderColor={borderColor}
+            borderRadius="md"
+            p={2}
+          >
+            <Text color={textColor} fontSize="sm">
+              {getDisplayRange()}
+            </Text>
+          </Box>
         </HStack>
 
         {/* Hidden inputs for form submission */}
@@ -460,23 +542,28 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
         )}
 
         {/* Constraints information */}
-        {(minDays > 0 || maxDays) && (
-          <Text fontSize="xs" color={mutedTextColor}>
-            {minDays > 0 && `Minimum ${minDays} days`}
-            {minDays > 0 && maxDays && " | "}
-            {maxDays && `Maximum ${maxDays} days`}
-          </Text>
-        )}
-
-        {/* Exclusion information */}
-        {(excludeWeekends || excludeDates.length > 0) && (
-          <Text fontSize="xs" color={mutedTextColor}>
-            {excludeWeekends && "Weekends excluded"}
-            {excludeWeekends && excludeDates.length > 0 && " | "}
-            {excludeDates.length > 0 &&
-              `${excludeDates.length} specific date(s) excluded`}
-          </Text>
-        )}
+        <Flex gap={2} wrap="wrap">
+          {minDays > 0 && (
+            <Badge colorScheme="blue" variant="subtle">
+              Min: {minDays} days
+            </Badge>
+          )}
+          {maxDays && (
+            <Badge colorScheme="blue" variant="subtle">
+              Max: {maxDays} days
+            </Badge>
+          )}
+          {excludeWeekends && (
+            <Badge colorScheme="red" variant="subtle">
+              Weekends excluded
+            </Badge>
+          )}
+          {excludeDates.length > 0 && (
+            <Badge colorScheme="red" variant="subtle">
+              {excludeDates.length} date(s) excluded
+            </Badge>
+          )}
+        </Flex>
       </VStack>
     </FormControl>
   );

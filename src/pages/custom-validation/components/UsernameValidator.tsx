@@ -17,6 +17,7 @@ import {
   VStack,
   HStack,
   Collapse,
+  Progress,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon, InfoIcon } from "@chakra-ui/icons";
 import { UseFormRegister, FieldError } from "react-hook-form";
@@ -98,6 +99,7 @@ const UsernameValidator: React.FC<UsernameValidatorProps> = ({
   const greenColor = useColorModeValue("green.500", "green.400");
   const redColor = useColorModeValue("red.500", "red.400");
   const suggestionBg = useColorModeValue("gray.50", "gray.700");
+  const borderColor = useColorModeValue("gray.200", "gray.600");
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -337,32 +339,36 @@ const UsernameValidator: React.FC<UsernameValidatorProps> = ({
       {/* Form error message */}
       {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
 
+      {/* Strength meter */}
+      {showStrengthMeter && strength > 0 && (
+        <Box mt={2}>
+          <Flex justify="space-between" align="center" mb={1}>
+            <Text fontSize="xs" color={mutedTextColor}>
+              Username Strength:
+            </Text>
+            <Text
+              fontSize="xs"
+              fontWeight="bold"
+              color={`${getStrengthColor(strength)}.500`}
+            >
+              {strength <= 1 ? "Weak" : strength <= 3 ? "Medium" : "Strong"}
+            </Text>
+          </Flex>
+          <Progress
+            value={(strength / 5) * 100}
+            size="xs"
+            colorScheme={getStrengthColor(strength)}
+            borderRadius="full"
+          />
+        </Box>
+      )}
+
       {/* Availability feedback */}
       {isAvailable === true && !error && (
         <Flex align="center" mt={1}>
           <Badge colorScheme="green" variant="subtle" px={2} py={0.5}>
             Available
           </Badge>
-
-          {showStrengthMeter && (
-            <Tooltip label={`Strength: ${strength}/5`} placement="top" hasArrow>
-              <Flex align="center" ml={3}>
-                <Text fontSize="xs" color={mutedTextColor} mr={1}>
-                  Strength:
-                </Text>
-                {[...Array(5)].map((_, i) => (
-                  <Box
-                    key={i}
-                    w="8px"
-                    h="8px"
-                    borderRadius="full"
-                    mx="1px"
-                    bg={i < strength ? getStrengthColor(strength) : "gray.200"}
-                  />
-                ))}
-              </Flex>
-            </Tooltip>
-          )}
         </Flex>
       )}
 
@@ -379,7 +385,14 @@ const UsernameValidator: React.FC<UsernameValidatorProps> = ({
 
       {/* Username suggestions */}
       <Collapse in={showSuggestions} animateOpacity>
-        <Box mt={2} p={2} bg={suggestionBg} borderRadius="md">
+        <Box
+          mt={2}
+          p={2}
+          bg={suggestionBg}
+          borderRadius="md"
+          borderWidth="1px"
+          borderColor={borderColor}
+        >
           <Text fontSize="xs" fontWeight="medium" mb={1} color={textColor}>
             Try these alternatives:
           </Text>

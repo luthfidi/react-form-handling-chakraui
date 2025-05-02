@@ -25,6 +25,8 @@ import {
   AlertDescription,
   CloseButton,
   SimpleGrid,
+  Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { AddIcon } from "@chakra-ui/icons";
 import { FaListUl } from "react-icons/fa";
@@ -40,6 +42,8 @@ import {
 import ExperienceItem from "./components/ExperienceItem";
 import EducationItem from "./components/EducationItem";
 import SkillItem from "./components/SkillItem";
+import { MdAutoFixHigh } from "react-icons/md";
+import { arrayFieldsFormSampleData } from "../../utils/SampleData";
 
 export default function ArrayFieldsForm() {
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
@@ -58,6 +62,7 @@ export default function ArrayFieldsForm() {
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<ArrayFieldsFormData>({
     resolver: zodResolver(arrayFieldsSchema),
@@ -72,6 +77,10 @@ export default function ArrayFieldsForm() {
     },
   });
 
+  const fillWithSampleData = () => {
+    // Reset the form with sample data
+    reset(arrayFieldsFormSampleData as any);
+  };
   // Field arrays for managing collections
   const {
     fields: experienceFields,
@@ -286,9 +295,25 @@ const {
                 borderColor={cardBorder}
               >
                 <VStack spacing={8} align="stretch">
-                  <Heading size="md" color={textColor}>
-                    Personal Information
-                  </Heading>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={4}
+                  >
+                    <Heading size="md" color={textColor}>
+                      Personal Information
+                    </Heading>
+                    <Tooltip label="Fill with sample data" placement="top">
+                      <IconButton
+                        aria-label="Fill with sample data"
+                        icon={<MdAutoFixHigh />}
+                        size="sm"
+                        onClick={fillWithSampleData}
+                        colorScheme="blue"
+                        variant="ghost"
+                      />
+                    </Tooltip>
+                  </Flex>
 
                   <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                     <FormControl isInvalid={!!errors.firstName} isRequired>

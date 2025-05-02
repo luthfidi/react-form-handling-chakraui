@@ -25,6 +25,9 @@ import {
   CloseButton,
   SimpleGrid,
   Checkbox,
+  Flex,
+  Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { FaCode } from "react-icons/fa";
 import FormPageLayout from "../../components/layout/FormPageLayout";
@@ -40,18 +43,23 @@ import DateRangePicker from "./components/DateRangePicker";
 import UsernameValidator from "./components/UsernameValidator";
 import ValidationContextProvider from "./components/ValidationContextProvider";
 import ConditionalValidation from "./components/ConditionalValidation";
+import { customValidationFormSampleData } from "../../utils/SampleData";
+import { MdAutoFixHigh } from "react-icons/md";
 
 export default function CustomValidationForm() {
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
   const [formData, setFormData] = useState<CustomValidationFormData | null>(
     null
   );
-  const [ , setPasswordStrength] = useState(0);
+  const [, setPasswordStrength] = useState(0);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
   );
   const [rangeError, setRangeError] = useState<string | undefined>(undefined);
   const alertRef = useRef<HTMLDivElement>(null);
+  const fillWithSampleData = () => {
+    reset(customValidationFormSampleData);
+  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -496,9 +504,25 @@ export const ValidationProvider = ({ children }) => {
                   borderColor={cardBorder}
                 >
                   <VStack spacing={8} align="stretch">
-                    <Heading size="md" color={textColor}>
-                      Custom Validation Form
-                    </Heading>
+                    <Flex
+                      justifyContent="space-between"
+                      alignItems="center"
+                      mb={4}
+                    >
+                      <Heading size="md" color={textColor}>
+                        Custom Validation Form
+                      </Heading>
+                      <Tooltip label="Fill with sample data" placement="top">
+                        <IconButton
+                          aria-label="Fill with sample data"
+                          icon={<MdAutoFixHigh />}
+                          size="sm"
+                          onClick={fillWithSampleData}
+                          colorScheme="blue"
+                          variant="ghost"
+                        />
+                      </Tooltip>
+                    </Flex>
                     <Text color={mutedTextColor}>
                       This form demonstrates advanced validation techniques with
                       real-time feedback.

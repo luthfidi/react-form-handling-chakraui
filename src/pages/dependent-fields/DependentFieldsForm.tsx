@@ -25,6 +25,9 @@ import {
   AlertTitle,
   AlertDescription,
   CloseButton,
+  Flex,
+  Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { FaRandom } from "react-icons/fa";
 import FormPageLayout from "../../components/layout/FormPageLayout";
@@ -35,12 +38,17 @@ import {
   productTypeEnum,
   type DependentFieldsFormData,
 } from "../../schemas/dependentFieldsSchema";
+import { dependentFieldsFormSampleData } from "../../utils/SampleData";
+import { MdAutoFixHigh } from "react-icons/md";
 
 export default function DependentFieldsForm() {
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
   const [formData, setFormData] = useState<DependentFieldsFormData | null>(
     null
   );
+  const fillWithSampleData = () => {
+    reset(dependentFieldsFormSampleData as any); // Use type assertion to bypass type checking
+  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -554,6 +562,26 @@ return (
                 borderWidth="1px"
                 borderColor={cardBorder}
               >
+                <Flex alignItems="center" mb={4}>
+                  <Text
+                    fontWeight="medium"
+                    fontSize="lg"
+                    color={textColor}
+                    mr={2}
+                  >
+                    Form Information
+                  </Text>
+                  <Tooltip label="Fill with sample data" placement="top">
+                    <IconButton
+                      aria-label="Fill with sample data"
+                      icon={<MdAutoFixHigh />}
+                      size="sm"
+                      onClick={fillWithSampleData}
+                      colorScheme="blue"
+                      variant="ghost"
+                    />
+                  </Tooltip>
+                </Flex>
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <VStack spacing={6} align="stretch">
                     <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>

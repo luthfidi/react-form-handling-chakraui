@@ -7,6 +7,7 @@ import {
   HStack,
   useColorModeValue,
   Icon,
+  Flex,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
@@ -97,7 +98,7 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
 
   return (
     <VStack spacing={2} align="stretch" width="100%" mt={1}>
-      <HStack justify="space-between" align="center">
+      <Flex justify="space-between" align="center">
         <Text fontSize="xs" color={mutedTextColor} fontWeight="medium">
           Password Strength:
         </Text>
@@ -108,7 +109,7 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
         >
           {strengthLevel.label}
         </Text>
-      </HStack>
+      </Flex>
 
       <Progress
         value={progressPercent}

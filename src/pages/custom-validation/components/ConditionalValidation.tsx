@@ -11,6 +11,10 @@ import {
   Text,
   useColorModeValue,
   Divider,
+  Collapse,
+  Button,
+  Alert,
+  AlertIcon,
 } from "@chakra-ui/react";
 import {
   UseFormRegister,
@@ -70,6 +74,7 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
   description,
 }) => {
   const [visibleFields, setVisibleFields] = useState<string[]>([]);
+  const [showNoFieldsMessage, setShowNoFieldsMessage] = useState(false);
   const formValues = useWatch({ control });
 
   // Colors
@@ -127,6 +132,7 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
       .map((field) => field.name);
 
     setVisibleFields(visible);
+    setShowNoFieldsMessage(visible.length === 0);
   }, [formValues, fields]);
 
   // Render a single field based on its type
@@ -255,7 +261,7 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
               <Text color={textColor}>{field.label}</Text>
             </Checkbox>
             {field.helperText && !error && (
-              <Text fontSize="xs" color={mutedTextColor} mt={1}>
+              <Text fontSize="xs" color={mutedTextColor} mt={1} ml={6}>
                 {field.helperText}
               </Text>
             )}
@@ -323,6 +329,15 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
           <Divider mb={4} />
         </>
       )}
+
+      <Collapse in={showNoFieldsMessage} animateOpacity>
+        <Alert status="info" mb={4} borderRadius="md">
+          <AlertIcon />
+          <Text fontSize="sm">
+            Additional fields will appear based on your selections above.
+          </Text>
+        </Alert>
+      </Collapse>
 
       <Stack spacing={2}>{fields.map((field) => renderField(field))}</Stack>
     </Box>

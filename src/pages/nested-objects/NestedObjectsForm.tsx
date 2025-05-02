@@ -31,11 +31,16 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
+  Flex,
+  Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
 import { FaNetworkWired } from "react-icons/fa";
 import FormPageLayout from "../../components/layout/FormPageLayout";
 import CodeBlock from "../../components/ui/CodeBlock";
 import { z } from "zod";
+import { nestedObjectsFormSampleData } from "../../utils/SampleData";
+import { MdAutoFixHigh } from "react-icons/md";
 
 // Define the schema directly in the component file for simplicity
 const basicInfoSchema = z.object({
@@ -93,6 +98,9 @@ export default function NestedObjectsForm() {
   const [formData, setFormData] = useState<FormData | null>(null);
   const alertRef = useRef<HTMLDivElement>(null);
   const [accordionIndexes, setAccordionIndexes] = useState<number[]>([0]);
+  const fillWithSampleData = () => {
+    reset(nestedObjectsFormSampleData as any); // Use type assertion to bypass type checking
+  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -359,9 +367,25 @@ const onSubmit = (data: FormData) => {
                 borderColor={cardBorder}
               >
                 <VStack spacing={8} align="stretch">
-                  <Heading size="md" color={textColor}>
-                    Subscription Form
-                  </Heading>
+                  <Flex
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={4}
+                  >
+                    <Heading size="md" color={textColor}>
+                      Subscription Form
+                    </Heading>
+                    <Tooltip label="Fill with sample data" placement="top">
+                      <IconButton
+                        aria-label="Fill with sample data"
+                        icon={<MdAutoFixHigh />}
+                        size="sm"
+                        onClick={fillWithSampleData}
+                        colorScheme="blue"
+                        variant="ghost"
+                      />
+                    </Tooltip>
+                  </Flex>
 
                   <Accordion
                     allowMultiple

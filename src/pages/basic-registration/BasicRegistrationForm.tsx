@@ -28,15 +28,18 @@ import {
   Tab,
   TabPanel,
   Divider,
+  Tooltip,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { FaUserPlus } from "react-icons/fa";
+import { MdAutoFixHigh } from "react-icons/md";
 import {
   basicRegistrationSchema,
   type BasicRegistrationFormData,
 } from "../../schemas/basicRegistrationSchema";
 import FormPageLayout from "../../components/layout/FormPageLayout";
 import CodeBlock from "../../components/ui/CodeBlock";
+import { basicRegistrationSampleData } from "../../utils/SampleData";
 
 export default function BasicRegistrationForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -69,6 +72,11 @@ export default function BasicRegistrationForm() {
       terms: false,
     },
   });
+
+  // Function to fill the form with sample data
+  const fillWithSampleData = () => {
+    reset(basicRegistrationSampleData);
+  };
 
   const onSubmit = (data: BasicRegistrationFormData) => {
     // Simulate API call
@@ -220,6 +228,22 @@ const onSubmit = (data: BasicRegistrationFormData) => {
               >
                 <form onSubmit={handleSubmit(onSubmit)}>
                   <Stack spacing={6}>
+                    <Flex justify="space-between" align="center">
+                      <Text fontWeight="medium" color={textColor}>
+                        Personal Information
+                      </Text>
+                      <Tooltip label="Fill with sample data" placement="top">
+                        <IconButton
+                          aria-label="Fill with sample data"
+                          icon={<MdAutoFixHigh />}
+                          size="sm"
+                          onClick={fillWithSampleData}
+                          colorScheme="blue"
+                          variant="ghost"
+                        />
+                      </Tooltip>
+                    </Flex>
+
                     <Flex gap={4} direction={{ base: "column", sm: "row" }}>
                       <FormControl isInvalid={!!errors.firstName}>
                         <FormLabel htmlFor="firstName" color={textColor}>
@@ -402,9 +426,7 @@ const onSubmit = (data: BasicRegistrationFormData) => {
               </Text>
 
               <Box as="ul" pl={5} alignSelf="stretch" color={textColor}>
-                <Box as="li">
-                  Required field validation
-                </Box>
+                <Box as="li">Required field validation</Box>
                 <Box as="li" mt={2}>
                   Email format validation
                 </Box>

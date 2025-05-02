@@ -10,6 +10,7 @@ import {
   Text,
   useColorModeValue,
   Icon,
+  Box,
 } from "@chakra-ui/react";
 import {
   FaCreditCard,
@@ -72,6 +73,34 @@ const detectCardType = (value: string): string => {
   return matchedCard?.type || "generic";
 };
 
+// Luhn algorithm for credit card validation
+const validateLuhn = (cardNumber: string): boolean => {
+  if (!cardNumber) return false;
+
+  // Remove all non-digit characters
+  const digits = cardNumber.replace(/\D/g, "");
+
+  if (!/^\d+$/.test(digits)) return false;
+
+  let sum = 0;
+  let double = false;
+
+  // Start from the right side
+  for (let i = digits.length - 1; i >= 0; i--) {
+    let digit = parseInt(digits.charAt(i), 10);
+
+    if (double) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+
+    sum += digit;
+    double = !double;
+  }
+
+  return sum % 10 === 0;
+};
+
 const CreditCardInput: React.FC<CreditCardInputProps> = ({
   id,
   name,
@@ -85,10 +114,12 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
 }) => {
   const [formattedValue, setFormattedValue] = useState("");
   const [cardType, setCardType] = useState("generic");
+  const [isValid, setIsValid] = useState<boolean | null>(null);
 
   const textColor = useColorModeValue("gray.700", "gray.200");
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
   const validIconColor = useColorModeValue("green.500", "green.400");
+  const invalidIconColor = useColorModeValue("red.500", "red.400");
 
   // Get the CardIcon component based on detected type
   const CardIcon =
@@ -119,6 +150,25 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
         onCardTypeChange(detectedType);
       }
     }
+
+    // Validate card using Luhn algorithm if at least 13 digits
+    if (truncatedValue.length >= 13) {
+      setIsValid(validateLuhn(truncatedValue));
+    } else {
+      setIsValid(null); // Not enough digits to validate
+    }
+  };
+
+  // Get card type display name
+  const getCardTypeDisplay = (type: string): string => {
+    const typeMap: Record<string, string> = {
+      visa: "Visa",
+      mastercard: "Mastercard",
+      amex: "American Express",
+      discover: "Discover",
+      generic: "Credit Card",
+    };
+    return typeMap[type] || "Credit Card";
   };
 
   // Register the input with React Hook Form
@@ -155,8 +205,10 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
               as={CardIcon}
               boxSize={6}
               color={
-                formattedValue.replace(/\s/g, "").length >= 13
+                isValid === true
                   ? validIconColor
+                  : isValid === false
+                  ? invalidIconColor
                   : "gray.400"
               }
             />
@@ -164,7 +216,26 @@ const CreditCardInput: React.FC<CreditCardInputProps> = ({
         </InputRightElement>
       </InputGroup>
 
-      {helperText && !error && (
+      {/* Show card type and validation status */}
+      {formattedValue && (
+        <Flex justify="space-between" mt={1}>
+          <Text fontSize="xs" color={mutedTextColor}>
+            {getCardTypeDisplay(cardType)}
+          </Text>
+          {isValid === true && (
+            <Text fontSize="xs" color={validIconColor}>
+              Valid card number
+            </Text>
+          )}
+          {isValid === false && (
+            <Text fontSize="xs" color={invalidIconColor}>
+              Invalid card number
+            </Text>
+          )}
+        </Flex>
+      )}
+
+      {helperText && !error && !formattedValue && (
         <Text fontSize="xs" color={mutedTextColor} mt={1}>
           {helperText}
         </Text>

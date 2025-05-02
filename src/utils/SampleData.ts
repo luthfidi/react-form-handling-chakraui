@@ -106,8 +106,8 @@ export const dependentFieldsFormSampleData = {
   name: "Sarah Williams",
   email: "sarah.williams@example.com",
 
-  // Employment data
-  employmentType: "employed",
+  // Change string to enum value
+  employmentType: "employed" as const, // Add "as const" to make it type-safe
   companyName: "Global Enterprises",
   position: "Marketing Manager",
 
@@ -119,8 +119,8 @@ export const dependentFieldsFormSampleData = {
 
   previousEmployer: "Previous Company Inc.",
 
-  // Product data
-  productType: "physical",
+  // Fix productType too
+  productType: "physical" as const,
   shippingAddress: "456 Park Avenue, New York, NY 10022",
   downloadPreference: "direct",
   billingCycle: "monthly",
@@ -203,8 +203,8 @@ export const nestedObjectsFormSampleData = {
 
   // Subscription
   subscription: {
-    plan: "premium",
-    billingCycle: "annual",
+    plan: "premium" as const,
+    billingCycle: "annual" as const, // Add "as const" to make it type-safe
     autoRenew: true,
     emailNotifications: true,
     smsNotifications: false,
