@@ -11,12 +11,16 @@ import {
   HStack,
   useColorModeValue,
   SimpleGrid,
+  Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
+import { MdAutoFixHigh } from "react-icons/md";
 import {
   addressSchema,
   type AddressData,
 } from "../../../schemas/multiStepFormSchema";
 import { useMultiStepFormStore } from "../../../store/multiStepFormStore";
+import { multiStepFormSampleData } from "../../../utils/SampleData";
 
 const Step2Address = () => {
   const { address, setAddress, nextStep, prevStep } = useMultiStepFormStore();
@@ -27,6 +31,7 @@ const Step2Address = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<AddressData>({
     resolver: zodResolver(addressSchema),
     defaultValues: address || {
@@ -43,12 +48,31 @@ const Step2Address = () => {
     nextStep();
   };
 
+  // Function to fill the form with sample data
+  const fillWithSampleData = () => {
+    reset(multiStepFormSampleData.address);
+  };
+
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)} width="100%">
       <VStack spacing={6} align="stretch">
         <FormControl isInvalid={!!errors.street}>
           <FormLabel htmlFor="street" color={textColor}>
             Street Address
+            <Tooltip label="Fill with sample data" placement="top">
+              <IconButton
+                aria-label="Fill with sample data"
+                icon={<MdAutoFixHigh />}
+                size="xs"
+                ml={2}
+                onClick={(e) => {
+                  e.preventDefault();
+                  fillWithSampleData();
+                }}
+                colorScheme="blue"
+                variant="ghost"
+              />
+            </Tooltip>
           </FormLabel>
           <Input
             id="street"

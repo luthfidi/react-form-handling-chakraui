@@ -10,12 +10,16 @@ import {
   VStack,
   useColorModeValue,
   SimpleGrid,
+  Tooltip,
+  IconButton,
 } from "@chakra-ui/react";
+import { MdAutoFixHigh } from "react-icons/md";
 import {
   personalInfoSchema,
   type PersonalInfoData,
 } from "../../../schemas/multiStepFormSchema";
 import { useMultiStepFormStore } from "../../../store/multiStepFormStore";
+import { multiStepFormSampleData } from "../../../utils/SampleData";
 
 const Step1PersonalInfo = () => {
   const { personalInfo, setPersonalInfo, nextStep } = useMultiStepFormStore();
@@ -26,6 +30,7 @@ const Step1PersonalInfo = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<PersonalInfoData>({
     resolver: zodResolver(personalInfoSchema),
     defaultValues: personalInfo || {
@@ -41,6 +46,11 @@ const Step1PersonalInfo = () => {
     nextStep();
   };
 
+  // Function to fill the form with sample data
+  const fillWithSampleData = () => {
+    reset(multiStepFormSampleData.personalInfo);
+  };
+
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)} width="100%">
       <VStack spacing={6} align="stretch">
@@ -48,6 +58,20 @@ const Step1PersonalInfo = () => {
           <FormControl isInvalid={!!errors.firstName}>
             <FormLabel htmlFor="firstName" color={textColor}>
               First Name
+              <Tooltip label="Fill with sample data" placement="top">
+                <IconButton
+                  aria-label="Fill with sample data"
+                  icon={<MdAutoFixHigh />}
+                  size="xs"
+                  ml={2}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    fillWithSampleData();
+                  }}
+                  colorScheme="blue"
+                  variant="ghost"
+                />
+              </Tooltip>
             </FormLabel>
             <Input
               id="firstName"

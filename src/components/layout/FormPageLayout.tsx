@@ -65,19 +65,30 @@ export default function FormPageLayout({
               <Icon as={icon} boxSize={10} />
             </Flex>
             <VStack align={{ base: "center", md: "start" }} spacing={2}>
-              <Flex align="center">
+              <Flex
+                align="center"
+                direction={{ base: "column", sm: "row" }}
+                gap={{ base: 2, sm: 3 }}
+              >
                 <Heading color="white" as="h1" size="xl">
                   {title}
                 </Heading>
                 <Badge
                   colorScheme={getDifficultyColor(difficulty)}
-                  ml={3}
-                  fontSize="md"
+                  fontSize={{ base: "sm", md: "md" }}
+                  px={2}
+                  py={1}
                 >
                   {difficulty}
                 </Badge>
               </Flex>
-              <Text color="white" opacity={0.9} fontSize="lg" maxW="3xl">
+              <Text
+                color="white"
+                opacity={0.9}
+                fontSize={{ base: "md", lg: "lg" }}
+                maxW="3xl"
+                mt={{ base: 2, sm: 0 }}
+              >
                 {description}
               </Text>
             </VStack>

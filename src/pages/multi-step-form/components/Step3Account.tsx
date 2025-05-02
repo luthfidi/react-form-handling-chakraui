@@ -16,13 +16,16 @@ import {
   InputRightElement,
   IconButton,
   Text,
+  Tooltip,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
+import { MdAutoFixHigh } from "react-icons/md";
 import {
   accountSchema,
   type AccountData,
 } from "../../../schemas/multiStepFormSchema";
 import { useMultiStepFormStore } from "../../../store/multiStepFormStore";
+import { multiStepFormSampleData } from "../../../utils/SampleData";
 
 const Step3Account = () => {
   const { account, setAccount, prevStep, completeForm } =
@@ -36,6 +39,7 @@ const Step3Account = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    reset,
   } = useForm<AccountData>({
     resolver: zodResolver(accountSchema),
     defaultValues: account || {
@@ -51,12 +55,31 @@ const Step3Account = () => {
     completeForm();
   };
 
+  // Function to fill the form with sample data
+  const fillWithSampleData = () => {
+    reset(multiStepFormSampleData.account);
+  };
+
   return (
     <Box as="form" onSubmit={handleSubmit(onSubmit)} width="100%">
       <VStack spacing={6} align="stretch">
         <FormControl isInvalid={!!errors.username}>
           <FormLabel htmlFor="username" color={textColor}>
             Username
+            <Tooltip label="Fill with sample data" placement="top">
+              <IconButton
+                aria-label="Fill with sample data"
+                icon={<MdAutoFixHigh />}
+                size="xs"
+                ml={2}
+                onClick={(e) => {
+                  e.preventDefault();
+                  fillWithSampleData();
+                }}
+                colorScheme="blue"
+                variant="ghost"
+              />
+            </Tooltip>
           </FormLabel>
           <Input
             id="username"

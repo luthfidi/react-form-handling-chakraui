@@ -7,11 +7,11 @@ import {
   Checkbox,
   FormErrorMessage,
   VStack,
-  HStack,
   IconButton,
   useColorModeValue,
   Flex,
   Spacer,
+  SimpleGrid,
 } from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import {
@@ -20,9 +20,7 @@ import {
   useFormState,
   UseFormRegister,
 } from "react-hook-form";
-import {
-  ArrayFieldsFormData,
-} from "../../../schemas/arrayFieldsSchema";
+import { ArrayFieldsFormData } from "../../../schemas/arrayFieldsSchema";
 
 interface ExperienceItemProps {
   index: number;
@@ -117,7 +115,8 @@ const ExperienceItem = ({
           )}
         </FormControl>
 
-        <HStack spacing={4} align="flex-start">
+        {/* Improved responsive date fields */}
+        <SimpleGrid columns={{ base: 1, sm: 2 }} spacing={4}>
           <FormControl isInvalid={!!experienceErrors?.startDate}>
             <FormLabel
               htmlFor={`experience.${index}.startDate`}
@@ -167,7 +166,7 @@ const ExperienceItem = ({
               </FormErrorMessage>
             )}
           </FormControl>
-        </HStack>
+        </SimpleGrid>
 
         <FormControl>
           <Checkbox
