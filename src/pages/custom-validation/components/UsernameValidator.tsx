@@ -220,10 +220,18 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
         // Simulate API call with delay
         await new Promise((resolve) => setTimeout(resolve, 800));
 
-        // Check basic format
+        // Check basic format and length
         if (!validateFormat(username)) {
           setValidationIssues([
             "Username can only contain letters, numbers, underscore, and hyphen",
+          ]);
+          setIsAvailable(false);
+          return false;
+        }
+        
+        if (username.length > maxLength) {
+          setValidationIssues([
+            `Username must be no longer than ${maxLength} characters`,
           ]);
           setIsAvailable(false);
           return false;
