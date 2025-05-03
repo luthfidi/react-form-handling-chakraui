@@ -84,7 +84,6 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
   // Colors
   const textColor = useColorModeValue("gray.700", "gray.200");
-  const mutedTextColor = useColorModeValue("gray.600", "gray.400");
   const errorColor = useColorModeValue("red.500", "red.400");
   const popoverBg = useColorModeValue("white", "gray.700");
   const borderColor = useColorModeValue("gray.200", "gray.600");

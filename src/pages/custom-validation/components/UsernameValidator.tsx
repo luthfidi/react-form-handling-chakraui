@@ -1,13 +1,5 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import React, { useState, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
 import {
-
   FormControl,
   FormLabel,
   Input,
@@ -31,7 +23,6 @@ import {
   useController,
   UseFormRegister,
   FieldError,
-  useFormContext,
   Control,
 } from "react-hook-form";
 
@@ -82,6 +73,19 @@ const COMMON_USERNAMES = [
   "default",
 ];
 
+// Simple debounce implementation
+const debounce = (func: Function, wait: number) => {
+  let timeout: NodeJS.Timeout;
+  return function executedFunction(...args: any[]) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+};
+
 // Forward ref implementation to expose functions to parent
 const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
   (
@@ -90,6 +94,7 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
       name,
       label,
       register,
+      control,
       error,
       isRequired = false,
       placeholder = "Choose a username",
@@ -110,7 +115,6 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [validationIssues, setValidationIssues] = useState<string[]>([]);
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
 
     // Colors
     const textColor = useColorModeValue("gray.700", "gray.200");
@@ -119,15 +123,6 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
     const redColor = useColorModeValue("red.500", "red.400");
     const suggestionBg = useColorModeValue("gray.50", "gray.700");
     const borderColor = useColorModeValue("gray.200", "gray.600");
-
-    // Clear timeout on unmount
-    useEffect(() => {
-      return () => {
-        if (timerRef.current) {
-          clearTimeout(timerRef.current);
-        }
-      };
-    }, []);
 
     // Validate username format
     const validateFormat = (username: string): boolean => {
@@ -204,78 +199,80 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
         .slice(0, 3);
     };
 
-    // Check username availability with API simulation
-    const checkAvailability = useCallback(
-      async (username: string) => {
-        if (!username || username.length < minLength) {
-          setIsAvailable(null);
-          return null;
-        }
-
-        setIsChecking(true);
-
-        try {
-          // Simulate API call with delay
-          await new Promise((resolve) => setTimeout(resolve, 800));
-
-          // Check basic format
-          if (!validateFormat(username)) {
-            setValidationIssues([
-              "Username can only contain letters, numbers, underscore, and hyphen",
-            ]);
-            setIsAvailable(false);
-            return false;
-          }
-
-          // Check against database
-          const isUsernameTaken = EXISTING_USERNAMES.includes(
-            username.toLowerCase()
-          );
-
-          if (isUsernameTaken) {
-            setValidationIssues(["Username is already taken"]);
-            setSuggestions(generateSuggestions(username));
-            setShowSuggestions(true);
-          } else {
-            setValidationIssues([]);
-            setShowSuggestions(false);
-          }
-
-          setIsAvailable(!isUsernameTaken);
-
-          // Check for blacklisted words
-          if (containsBlacklistedWord(username)) {
-            setValidationIssues((prev) => [
-              ...prev,
-              "Username contains common or blacklisted words",
-            ]);
-            if (onStrengthChange) {
-              onStrengthChange(1); // Weak
-            }
-          }
-
-          // Calculate and set strength
-          const score = calculateStrength(username);
-          setStrength(score);
-          if (onStrengthChange) {
-            onStrengthChange(score);
-          }
-
-          // Callback with result
-          if (onAvailabilityCheck) {
-            onAvailabilityCheck(!isUsernameTaken);
-          }
-
-          return !isUsernameTaken;
-        } catch (error) {
-          console.error("Error checking username:", error);
-          return null;
-        } finally {
-          setIsChecking(false);
-        }
-      },
-      [minLength, onAvailabilityCheck, onStrengthChange, blacklist]
+    // Debounced check availability function
+    const debouncedCheckAvailability = useCallback(
+      debounce((username: string) => {
+        checkAvailability(username);
+      }, debounceMs),
+      [blacklist, minLength]
     );
+
+    // Check username availability with API simulation
+    const checkAvailability = async (username: string) => {
+      if (!username || username.length < minLength) {
+        setIsAvailable(null);
+        return null;
+      }
+
+      setIsChecking(true);
+
+      try {
+        // Simulate API call with delay
+        await new Promise((resolve) => setTimeout(resolve, 800));
+
+        // Check basic format
+        if (!validateFormat(username)) {
+          setValidationIssues([
+            "Username can only contain letters, numbers, underscore, and hyphen",
+          ]);
+          setIsAvailable(false);
+          return false;
+        }
+
+        // Check against database
+        const isUsernameTaken = EXISTING_USERNAMES.includes(
+          username.toLowerCase()
+        );
+
+        if (isUsernameTaken) {
+          setValidationIssues(["Username is already taken"]);
+          setSuggestions(generateSuggestions(username));
+          setShowSuggestions(true);
+        } else {
+          setValidationIssues([]);
+          setShowSuggestions(false);
+        }
+
+        setIsAvailable(!isUsernameTaken);
+
+        // Check for blacklisted words
+        if (containsBlacklistedWord(username)) {
+          setValidationIssues((prev) => [
+            ...prev,
+            "Username contains common or blacklisted words",
+          ]);
+        }
+
+        // Calculate and set strength
+        const score = calculateStrength(username);
+        setStrength(score);
+        if (onStrengthChange) {
+          onStrengthChange(score);
+        }
+
+        // Callback with result
+        if (onAvailabilityCheck) {
+          onAvailabilityCheck(!isUsernameTaken);
+        }
+
+        return !isUsernameTaken;
+      } catch (error) {
+        console.error("Error checking username:", error);
+        return null;
+      } finally {
+        setIsChecking(false);
+      }
+    };
 
     // Expose methods to parent via forwardRef
     useImperativeHandle(ref, () => ({
@@ -283,14 +280,16 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
       calculateStrength,
     }));
 
-    // Debounced handler for username changes
-    const handleUsernameChange = (value: string) => {
-      // Clear previous timer
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+    // Get value from form controller
+    const {
+      field: { value, onChange },
+    } = useController({
+      name,
+      control,
+    });
 
-      // Reset states for empty input
+    // Effect to watch value changes
+    useEffect(() => {
       if (!value || value.length < minLength) {
         setIsAvailable(null);
         setStrength(0);
@@ -299,49 +298,11 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
         return;
       }
 
-      // Set timer for debounce
-      timerRef.current = setTimeout(() => {
-        checkAvailability(value);
-      }, debounceMs);
-    };
+      debouncedCheckAvailability(value);
+    }, [value, minLength]);
 
-    const formContext = useFormContext();
-    const {
-      field: { value, onChange },
-    } = useController({
-      name,
-      control: formContext.control,
-      defaultValue: "",
-    });
-
-    // Register input with React Hook Form
-    const { onChange: registerOnChange, ...rest } = register(name, {
-      minLength: {
-        value: minLength,
-        message: `Username must be at least ${minLength} characters`,
-      },
-      maxLength: {
-        value: maxLength,
-        message: `Username must not exceed ${maxLength} characters`,
-      },
-      pattern: {
-        value: /^[a-zA-Z0-9_-]+$/,
-        message:
-          "Username can only contain letters, numbers, underscore, and hyphen",
-      },
-    });
-
-    // Effect to handle initial value if set programmatically
-    useEffect(() => {
-      if (value && value.length >= minLength) {
-        // Calculate strength immediately for the initial value
-        const score = calculateStrength(value);
-        setStrength(score);
-
-        // Trigger availability check for the initial value
-        checkAvailability(value);
-      }
-    }, []);
+    // Register with React Hook Form
+    const { onChange: registerOnChange, ...rest } = register(name);
 
     return (
       <FormControl isInvalid={!!error} isRequired={isRequired}>
@@ -353,14 +314,11 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
           <Input
             id={id}
             placeholder={placeholder}
-            value={value}
+            value={value || ""}
             onChange={(e) => {
               // Call both React Hook Form onChange handlers
               registerOnChange(e);
               onChange(e);
-
-              // Handle custom availability check
-              handleUsernameChange(e.target.value);
             }}
             _focus={{
               borderColor: "brand.500",

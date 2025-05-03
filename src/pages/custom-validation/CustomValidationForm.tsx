@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { useForm, FieldError } from "react-hook-form";
+import React, { useState, useRef } from "react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Box,
@@ -23,11 +23,12 @@ import {
   AlertTitle,
   AlertDescription,
   CloseButton,
-  SimpleGrid,
   Checkbox,
-  Flex,
+  Select,
+  SimpleGrid,
   Tooltip,
   IconButton,
+  Flex,
 } from "@chakra-ui/react";
 import { FaCode } from "react-icons/fa";
 import FormPageLayout from "../../components/layout/FormPageLayout";
@@ -41,10 +42,91 @@ import PasswordStrengthMeter from "./components/PasswordStrengthMeter";
 import CreditCardInput from "./components/CreditCardInput";
 import DateRangePicker from "./components/DateRangePicker";
 import UsernameValidator from "./components/UsernameValidator";
-import ValidationContextProvider from "./components/ValidationContextProvider";
-import ConditionalValidation from "./components/ConditionalValidation";
 import { customValidationFormSampleData } from "../../utils/SampleData";
 import { MdAutoFixHigh } from "react-icons/md";
+
+// Simple context provider for validation - replaces the missing ValidationContextProvider
+const ValidationContext = React.createContext<any>(null);
+
+const ValidationContextProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
+  return (
+    <ValidationContext.Provider value={{}}>
+      {children}
+    </ValidationContext.Provider>
+  );
+};
+
+// Helper component for conditional validation fields
+const ConditionalValidation: React.FC<{
+  fields: any[];
+  register: any;
+  control: any;
+  errors: Record<string, any>;
+  title?: string;
+  description?: string;
+}> = ({ fields, register, control, errors, title, description }) => {
+  const textColor = useColorModeValue("gray.700", "gray.200");
+  const borderColor = useColorModeValue("gray.200", "gray.700");
+  const bgColor = useColorModeValue("gray.50", "gray.700");
+
+  return (
+    <Box
+      p={4}
+      borderWidth="1px"
+      borderRadius="md"
+      borderColor={borderColor}
+      bg={bgColor}
+    >
+      {title && (
+        <Text fontSize="lg" fontWeight="medium" mb={2} color={textColor}>
+          {title}
+        </Text>
+      )}
+      {description && (
+        <Text fontSize="sm" color={textColor} mb={4}>
+          {description}
+        </Text>
+      )}
+      <VStack spacing={4} align="stretch">
+        {fields.map((field) => (
+          <FormControl 
+            key={field.name} 
+            isInvalid={!!errors[field.name]}
+            isRequired={field.isRequired}
+          >
+            <FormLabel htmlFor={field.name} color={textColor}>
+              {field.label}
+            </FormLabel>
+            {field.type === 'select' ? (
+              <Select
+                id={field.name}
+                {...register(field.name)}
+              >
+                {field.options?.map((option: any) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+            ) : (
+              <Input
+                id={field.name}
+                type={field.type}
+                placeholder={field.placeholder}
+                {...register(field.name)}
+              />
+            )}
+            {errors[field.name] && (
+              <FormErrorMessage>
+                {errors[field.name].message}
+              </FormErrorMessage>
+            )}
+          </FormControl>
+        ))}
+      </VStack>
+    </Box>
+  );
+};
 
 export default function CustomValidationForm() {
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
@@ -118,7 +200,7 @@ export default function CustomValidationForm() {
   const successBg = useColorModeValue("green.50", "rgba(72, 187, 120, 0.1)");
   const textColor = useColorModeValue("gray.700", "gray.200");
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
-  const inputBg = useColorModeValue("white", "gray.700");
+  const sectionBg = useColorModeValue("gray.50", "gray.700");
 
   const {
     register,
@@ -153,7 +235,7 @@ export default function CustomValidationForm() {
   const password = watch("password");
 
   // Update the global form values for cross-field validation
-  useEffect(() => {
+  React.useEffect(() => {
     formValues.country = watchedValues.country;
   }, [watchedValues.country]);
 
@@ -598,7 +680,7 @@ export const ValidationProvider = ({ children }) => {
                               id="email"
                               type="email"
                               placeholder="Enter your email"
-                              bg={inputBg}
+                              bg={cardBg}
                               {...register("email")}
                             />
                             <Text fontSize="xs" color={mutedTextColor} mt={1}>
@@ -621,7 +703,7 @@ export const ValidationProvider = ({ children }) => {
                               id="password"
                               type="password"
                               placeholder="Create a strong password"
-                              bg={inputBg}
+                              bg={cardBg}
                               {...register("password")}
                             />
 
@@ -664,7 +746,7 @@ export const ValidationProvider = ({ children }) => {
                               id="age"
                               type="number"
                               placeholder="Enter your age"
-                              bg={inputBg}
+                              bg={cardBg}
                               {...register("age", { valueAsNumber: true })}
                             />
                             <Text fontSize="xs" color={mutedTextColor} mt={1}>
@@ -684,7 +766,7 @@ export const ValidationProvider = ({ children }) => {
                             <Input
                               id="website"
                               placeholder="https://example.com"
-                              bg={inputBg}
+                              bg={cardBg}
                               {...register("website")}
                             />
                             <Text fontSize="xs" color={mutedTextColor} mt={1}>
@@ -707,7 +789,7 @@ export const ValidationProvider = ({ children }) => {
                               as="textarea"
                               id="bio"
                               placeholder="Tell us about yourself"
-                              bg={inputBg}
+                              bg={cardBg}
                               height="100px"
                               py={2}
                               {...register("bio")}
@@ -768,10 +850,9 @@ export const ValidationProvider = ({ children }) => {
                             <FormLabel htmlFor="country" color={textColor}>
                               Country
                             </FormLabel>
-                            <Input
-                              as="select"
+                            <Select
                               id="country"
-                              bg={inputBg}
+                              bg={cardBg}
                               {...register("country")}
                             >
                               <option value="United States">
@@ -784,7 +865,7 @@ export const ValidationProvider = ({ children }) => {
                               <option value="Australia">Australia</option>
                               <option value="Germany">Germany</option>
                               <option value="Other">Other</option>
-                            </Input>
+                            </Select>
                             {errors.country && (
                               <FormErrorMessage>
                                 {errors.country.message}
@@ -809,7 +890,7 @@ export const ValidationProvider = ({ children }) => {
                                   ? "e.g. A1A 1A1"
                                   : "Postal/ZIP Code"
                               }
-                              bg={inputBg}
+                              bg={cardBg}
                               {...register("zipCode")}
                             />
                             <Text fontSize="xs" color={mutedTextColor} mt={1}>
@@ -875,10 +956,9 @@ export const ValidationProvider = ({ children }) => {
                           <FormLabel htmlFor="employmentType" color={textColor}>
                             Employment Status
                           </FormLabel>
-                          <Input
-                            as="select"
+                          <Select
                             id="employmentType"
-                            bg={inputBg}
+                            bg={cardBg}
                             {...register("employmentType")}
                           >
                             <option value="employed">Employed</option>
@@ -886,7 +966,7 @@ export const ValidationProvider = ({ children }) => {
                             <option value="student">Student</option>
                             <option value="unemployed">Unemployed</option>
                             <option value="retired">Retired</option>
-                          </Input>
+                          </Select>
                           {errors.employmentType && (
                             <FormErrorMessage>
                               {errors.employmentType.message}
@@ -898,9 +978,7 @@ export const ValidationProvider = ({ children }) => {
                           fields={conditionalFields}
                           register={register}
                           control={control}
-                          errors={
-                            errors as Record<string, FieldError | undefined>
-                          }
+                          errors={errors}
                           title="Employment Details"
                           description={`Additional information based on your employment status: ${employmentType}`}
                         />

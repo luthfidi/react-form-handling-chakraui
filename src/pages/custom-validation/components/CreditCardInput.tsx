@@ -2,6 +2,7 @@ import React, {
   useState,
   forwardRef,
   useImperativeHandle,
+  useEffect
 } from "react";
 import {
   FormControl,
@@ -22,19 +23,14 @@ import {
   FaCcAmex,
   FaCcDiscover,
 } from "react-icons/fa";
-import {
-  UseFormRegister,
-  FieldError,
-  useController,
-  Control,
-} from "react-hook-form";
+import { Control, useController, FieldError } from "react-hook-form";
 
 interface CreditCardInputProps {
   id: string;
   name: string;
   label: string;
-  register: UseFormRegister<any>;
-  control: Control<any>; // Added control prop
+  register: any;
+  control: Control<any>;
   error?: FieldError;
   isRequired?: boolean;
   onCardTypeChange?: (cardType: string) => void;
@@ -137,11 +133,9 @@ const CreditCardInput = forwardRef<any, CreditCardInputProps>(
     const invalidIconColor = useColorModeValue("red.500", "red.400");
 
     // Use controller to get values and onChange from React Hook Form
-    const {
-      field: { value, onChange },
-    } = useController({
+    const { field } = useController({
       name,
-      control, // Using the control prop
+      control,
       defaultValue: "",
     });
 
@@ -187,7 +181,7 @@ const CreditCardInput = forwardRef<any, CreditCardInputProps>(
 
       // Update native input (for React Hook Form)
       e.target.value = truncatedValue;
-      onChange(e);
+      field.onChange(e);
 
       // Detect and set card type
       const detectedType = detectCardType(truncatedValue);
@@ -207,9 +201,9 @@ const CreditCardInput = forwardRef<any, CreditCardInputProps>(
     };
 
     // Effect to handle initial value if set programmatically
-    React.useEffect(() => {
-      if (value) {
-        const digitsOnly = value.toString().replace(/\D/g, "");
+    useEffect(() => {
+      if (field.value) {
+        const digitsOnly = field.value.toString().replace(/\D/g, "");
         // Detect card type
         const detectedType = detectCardType(digitsOnly);
         setCardType(detectedType);
@@ -221,7 +215,7 @@ const CreditCardInput = forwardRef<any, CreditCardInputProps>(
           setIsValid(validateLuhn(digitsOnly));
         }
       }
-    }, [value]);
+    }, [field.value]);
 
     // Get card type display name
     const getCardTypeDisplay = (type: string): string => {
