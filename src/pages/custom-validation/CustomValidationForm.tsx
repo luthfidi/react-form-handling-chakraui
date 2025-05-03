@@ -51,8 +51,11 @@ export default function CustomValidationForm() {
   const [formData, setFormData] = useState<CustomValidationFormData | null>(
     null
   );
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
+  // State for password strength meter
+  const [_passwordStrength, setPasswordStrength] = useState(0);
+
+  // State for username availability indicator
+  const [_usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
   );
   const [rangeError, setRangeError] = useState<string | undefined>(undefined);
@@ -449,591 +452,609 @@ export const ValidationProvider = ({ children }) => {
   );
 };`;
 
-  return (
-    <ValidationContextProvider>
-      <FormPageLayout
-        title="Custom Validation Rules"
-        description="Create sophisticated custom validation logic beyond what schema validation provides out of the box."
-        icon={FaCode}
-        difficulty="Advanced"
-      >
-        <Tabs variant="enclosed" colorScheme="brand">
-          <TabList>
-            <Tab fontWeight="medium">Form Demo</Tab>
-            <Tab fontWeight="medium">Code Example</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <VStack spacing={8} w="full" py={5}>
-                <div ref={alertRef}>
-                  {isSubmitSuccessful && (
-                    <Alert
-                      status="success"
-                      variant="subtle"
-                      flexDirection="column"
-                      alignItems="center"
-                      justifyContent="center"
-                      textAlign="center"
-                      borderRadius="md"
-                      p={6}
-                      bg={successBg}
-                    >
-                      <AlertIcon boxSize="40px" mr={0} />
-                      <AlertTitle mt={4} mb={1} fontSize="lg">
-                        Form Submitted Successfully!
-                      </AlertTitle>
-                      <AlertDescription maxWidth="sm" color={textColor}>
-                        Your form with custom validation rules has been
-                        submitted successfully.
-                      </AlertDescription>
-
-                      {formData && (
-                        <Box
-                          mt={4}
-                          p={3}
-                          bg={cardBg}
-                          rounded="md"
-                          width="full"
-                          textAlign="left"
-                          borderWidth="1px"
-                          borderColor={cardBorder}
-                        >
-                          <Text fontWeight="bold" mb={2}>
-                            Submitted Data:
-                          </Text>
-                          <CodeBlock
-                            code={JSON.stringify(formData, null, 2)}
-                            language="json"
-                            showLineNumbers={false}
-                          />
-                        </Box>
-                      )}
-
-                      <CloseButton
-                        position="absolute"
-                        right="8px"
-                        top="8px"
-                        onClick={() => setIsSubmitSuccessful(false)}
-                      />
-                    </Alert>
-                  )}
-                </div>
-
-                <Box
-                  as="form"
-                  onSubmit={handleSubmit(onSubmit)}
-                  rounded="xl"
-                  bg={cardBg}
-                  boxShadow="xl"
-                  p={8}
-                  w="full"
-                  maxW="800px"
-                  mx="auto"
-                  borderWidth="1px"
-                  borderColor={cardBorder}
-                >
-                  <VStack spacing={6} align="stretch">
-                    <Flex alignItems="center">
-                      <Heading size="md" color={textColor}>
-                        Custom Validation Form
-                      </Heading>
-                      <Tooltip label="Fill with sample data" placement="top">
-                        <IconButton
-                          aria-label="Fill with sample data"
-                          icon={<MdAutoFixHigh />}
-                          size="sm"
-                          onClick={fillWithSampleData}
-                          colorScheme="blue"
-                          variant="ghost"
-                          m={2}
-                        />
-                      </Tooltip>
-                    </Flex>
-
-                    <Text color={mutedTextColor}>
-                      This form demonstrates advanced validation techniques with
-                      real-time feedback.
-                    </Text>
-
-                    <Divider />
-
-                    {/* Account Information Section */}
-                    <Box>
-                      <Text
-                        fontSize="xl"
-                        fontWeight="medium"
-                        mb={4}
-                        color={textColor}
+  try {
+    return (
+      <ValidationContextProvider>
+        <FormPageLayout
+          title="Custom Validation Rules"
+          description="Create sophisticated custom validation logic beyond what schema validation provides out of the box."
+          icon={FaCode}
+          difficulty="Advanced"
+        >
+          <Tabs variant="enclosed" colorScheme="brand">
+            <TabList>
+              <Tab fontWeight="medium">Form Demo</Tab>
+              <Tab fontWeight="medium">Code Example</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                <VStack spacing={8} w="full" py={5}>
+                  <div ref={alertRef}>
+                    {isSubmitSuccessful && (
+                      <Alert
+                        status="success"
+                        variant="subtle"
+                        flexDirection="column"
+                        alignItems="center"
+                        justifyContent="center"
+                        textAlign="center"
+                        borderRadius="md"
+                        p={6}
+                        bg={successBg}
                       >
-                        Account Information
-                      </Text>
+                        <AlertIcon boxSize="40px" mr={0} />
+                        <AlertTitle mt={4} mb={1} fontSize="lg">
+                          Form Submitted Successfully!
+                        </AlertTitle>
+                        <AlertDescription maxWidth="sm" color={textColor}>
+                          Your form with custom validation rules has been
+                          submitted successfully.
+                        </AlertDescription>
 
-                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                        {/* Username with availability check */}
-                        <UsernameValidator
-                          ref={usernameValidatorRef}
-                          id="username"
-                          name="username"
-                          label="Username"
-                          register={register}
-                          error={errors.username}
-                          isRequired={true}
-                          blacklist={["admin", "root", "system", "moderator"]}
-                          onAvailabilityCheck={setUsernameAvailable}
-                          showStrengthMeter={true}
-                          placeholder="Choose a unique username"
-                          helperText="Must be 4-20 characters with only letters, numbers, and underscores"
-                        />
-
-                        <FormControl isInvalid={!!errors.email} isRequired>
-                          <FormLabel htmlFor="email" color={textColor}>
-                            Email Address
-                          </FormLabel>
-                          <Input
-                            id="email"
-                            type="email"
-                            placeholder="Enter your email"
-                            bg={inputBg}
-                            {...register("email")}
-                          />
-                          <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                            We don't accept temporary email addresses
-                          </Text>
-                          {errors.email && (
-                            <FormErrorMessage>
-                              {errors.email.message}
-                            </FormErrorMessage>
-                          )}
-                        </FormControl>
-                      </SimpleGrid>
-
-                      <Box mt={6}>
-                        <FormControl isInvalid={!!errors.password} isRequired>
-                          <FormLabel htmlFor="password" color={textColor}>
-                            Password
-                          </FormLabel>
-                          <Input
-                            id="password"
-                            type="password"
-                            placeholder="Create a strong password"
-                            bg={inputBg}
-                            {...register("password")}
-                          />
-
-                          {/* Password strength meter */}
-                          {password && (
-                            <PasswordStrengthMeter
-                              password={password}
-                              showChecklist={true}
+                        {formData && (
+                          <Box
+                            mt={4}
+                            p={3}
+                            bg={cardBg}
+                            rounded="md"
+                            width="full"
+                            textAlign="left"
+                            borderWidth="1px"
+                            borderColor={cardBorder}
+                          >
+                            <Text fontWeight="bold" mb={2}>
+                              Submitted Data:
+                            </Text>
+                            <CodeBlock
+                              code={JSON.stringify(formData, null, 2)}
+                              language="json"
+                              showLineNumbers={false}
                             />
-                          )}
+                          </Box>
+                        )}
 
-                          {errors.password && (
-                            <FormErrorMessage>
-                              {errors.password.message}
-                            </FormErrorMessage>
-                          )}
-                        </FormControl>
+                        <CloseButton
+                          position="absolute"
+                          right="8px"
+                          top="8px"
+                          onClick={() => setIsSubmitSuccessful(false)}
+                        />
+                      </Alert>
+                    )}
+                  </div>
+
+                  <Box
+                    as="form"
+                    onSubmit={handleSubmit(onSubmit)}
+                    rounded="xl"
+                    bg={cardBg}
+                    boxShadow="xl"
+                    p={8}
+                    w="full"
+                    maxW="800px"
+                    mx="auto"
+                    borderWidth="1px"
+                    borderColor={cardBorder}
+                  >
+                    <VStack spacing={6} align="stretch">
+                      <Flex alignItems="center">
+                        <Heading size="md" color={textColor}>
+                          Custom Validation Form
+                        </Heading>
+                        <Tooltip label="Fill with sample data" placement="top">
+                          <IconButton
+                            aria-label="Fill with sample data"
+                            icon={<MdAutoFixHigh />}
+                            size="sm"
+                            onClick={fillWithSampleData}
+                            colorScheme="blue"
+                            variant="ghost"
+                            m={2}
+                          />
+                        </Tooltip>
+                      </Flex>
+
+                      <Text color={mutedTextColor}>
+                        This form demonstrates advanced validation techniques
+                        with real-time feedback.
+                      </Text>
+
+                      <Divider />
+
+                      {/* Account Information Section */}
+                      <Box>
+                        <Text
+                          fontSize="xl"
+                          fontWeight="medium"
+                          mb={4}
+                          color={textColor}
+                        >
+                          Account Information
+                        </Text>
+
+                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                          {/* Username with availability check */}
+                          <UsernameValidator
+                            ref={usernameValidatorRef}
+                            id="username"
+                            name="username"
+                            label="Username"
+                            register={register}
+                            control={control}
+                            error={errors.username}
+                            isRequired={true}
+                            blacklist={["admin", "root", "system", "moderator"]}
+                            onAvailabilityCheck={setUsernameAvailable}
+                            showStrengthMeter={true}
+                            placeholder="Choose a unique username"
+                            helperText="Must be 4-20 characters with only letters, numbers, and underscores"
+                          />
+
+                          <FormControl isInvalid={!!errors.email} isRequired>
+                            <FormLabel htmlFor="email" color={textColor}>
+                              Email Address
+                            </FormLabel>
+                            <Input
+                              id="email"
+                              type="email"
+                              placeholder="Enter your email"
+                              bg={inputBg}
+                              {...register("email")}
+                            />
+                            <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                              We don't accept temporary email addresses
+                            </Text>
+                            {errors.email && (
+                              <FormErrorMessage>
+                                {errors.email.message}
+                              </FormErrorMessage>
+                            )}
+                          </FormControl>
+                        </SimpleGrid>
+
+                        <Box mt={6}>
+                          <FormControl isInvalid={!!errors.password} isRequired>
+                            <FormLabel htmlFor="password" color={textColor}>
+                              Password
+                            </FormLabel>
+                            <Input
+                              id="password"
+                              type="password"
+                              placeholder="Create a strong password"
+                              bg={inputBg}
+                              {...register("password")}
+                            />
+
+                            {/* Password strength meter */}
+                            {password && (
+                              <PasswordStrengthMeter
+                                password={password}
+                                showChecklist={true}
+                              />
+                            )}
+
+                            {errors.password && (
+                              <FormErrorMessage>
+                                {errors.password.message}
+                              </FormErrorMessage>
+                            )}
+                          </FormControl>
+                        </Box>
                       </Box>
-                    </Box>
 
-                    <Divider />
+                      <Divider />
 
-                    {/* Personal Details Section */}
-                    <Box>
-                      <Text
-                        fontSize="xl"
-                        fontWeight="medium"
-                        mb={4}
-                        color={textColor}
-                      >
-                        Personal Details
-                      </Text>
+                      {/* Personal Details Section */}
+                      <Box>
+                        <Text
+                          fontSize="xl"
+                          fontWeight="medium"
+                          mb={4}
+                          color={textColor}
+                        >
+                          Personal Details
+                        </Text>
 
-                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                        <FormControl isInvalid={!!errors.age} isRequired>
-                          <FormLabel htmlFor="age" color={textColor}>
-                            Age
-                          </FormLabel>
-                          <Input
-                            id="age"
-                            type="number"
-                            placeholder="Enter your age"
-                            bg={inputBg}
-                            {...register("age", { valueAsNumber: true })}
-                          />
-                          <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                            Must be at least 18 years old
-                          </Text>
-                          {errors.age && (
-                            <FormErrorMessage>
-                              {errors.age.message}
-                            </FormErrorMessage>
-                          )}
-                        </FormControl>
+                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                          <FormControl isInvalid={!!errors.age} isRequired>
+                            <FormLabel htmlFor="age" color={textColor}>
+                              Age
+                            </FormLabel>
+                            <Input
+                              id="age"
+                              type="number"
+                              placeholder="Enter your age"
+                              bg={inputBg}
+                              {...register("age", { valueAsNumber: true })}
+                            />
+                            <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                              Must be at least 18 years old
+                            </Text>
+                            {errors.age && (
+                              <FormErrorMessage>
+                                {errors.age.message}
+                              </FormErrorMessage>
+                            )}
+                          </FormControl>
 
-                        <FormControl isInvalid={!!errors.website}>
-                          <FormLabel htmlFor="website" color={textColor}>
-                            Website
-                          </FormLabel>
-                          <Input
-                            id="website"
-                            placeholder="https://example.com"
-                            bg={inputBg}
-                            {...register("website")}
-                          />
-                          <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                            Must use HTTPS protocol if provided
-                          </Text>
-                          {errors.website && (
-                            <FormErrorMessage>
-                              {errors.website.message}
-                            </FormErrorMessage>
-                          )}
-                        </FormControl>
-                      </SimpleGrid>
+                          <FormControl isInvalid={!!errors.website}>
+                            <FormLabel htmlFor="website" color={textColor}>
+                              Website
+                            </FormLabel>
+                            <Input
+                              id="website"
+                              placeholder="https://example.com"
+                              bg={inputBg}
+                              {...register("website")}
+                            />
+                            <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                              Must use HTTPS protocol if provided
+                            </Text>
+                            {errors.website && (
+                              <FormErrorMessage>
+                                {errors.website.message}
+                              </FormErrorMessage>
+                            )}
+                          </FormControl>
+                        </SimpleGrid>
 
-                      <Box mt={6}>
-                        <FormControl isInvalid={!!errors.bio}>
-                          <FormLabel htmlFor="bio" color={textColor}>
-                            Bio
-                          </FormLabel>
-                          <Input
-                            as="textarea"
-                            id="bio"
-                            placeholder="Tell us about yourself"
-                            bg={inputBg}
-                            height="100px"
-                            py={2}
-                            {...register("bio")}
-                          />
-                          <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                            Max 200 characters, appropriate content only
-                          </Text>
-                          {errors.bio && (
-                            <FormErrorMessage>
-                              {errors.bio.message}
-                            </FormErrorMessage>
-                          )}
-                        </FormControl>
+                        <Box mt={6}>
+                          <FormControl isInvalid={!!errors.bio}>
+                            <FormLabel htmlFor="bio" color={textColor}>
+                              Bio
+                            </FormLabel>
+                            <Input
+                              as="textarea"
+                              id="bio"
+                              placeholder="Tell us about yourself"
+                              bg={inputBg}
+                              height="100px"
+                              py={2}
+                              {...register("bio")}
+                            />
+                            <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                              Max 200 characters, appropriate content only
+                            </Text>
+                            {errors.bio && (
+                              <FormErrorMessage>
+                                {errors.bio.message}
+                              </FormErrorMessage>
+                            )}
+                          </FormControl>
+                        </Box>
                       </Box>
-                    </Box>
 
-                    <Divider />
+                      <Divider />
 
-                    {/* Payment Information */}
-                    <Box>
-                      <Text
-                        fontSize="xl"
-                        fontWeight="medium"
-                        mb={4}
-                        color={textColor}
-                      >
-                        Payment Information
-                      </Text>
+                      {/* Payment Information */}
+                      <Box>
+                        <Text
+                          fontSize="xl"
+                          fontWeight="medium"
+                          mb={4}
+                          color={textColor}
+                        >
+                          Payment Information
+                        </Text>
 
-                      <CreditCardInput
-                        ref={creditCardInputRef}
-                        id="creditCard"
-                        name="creditCard"
-                        label="Credit Card Number"
-                        register={register}
-                        error={errors.creditCard}
-                        isRequired={true}
-                        helperText="Must be a valid credit card number (validated with Luhn algorithm)"
-                      />
-                    </Box>
+                        <CreditCardInput
+                          ref={creditCardInputRef}
+                          id="creditCard"
+                          name="creditCard"
+                          label="Credit Card Number"
+                          register={register}
+                          control={control}
+                          error={errors.creditCard}
+                          isRequired={true}
+                          helperText="Must be a valid credit card number (validated with Luhn algorithm)"
+                        />
+                      </Box>
 
-                    <Divider />
+                      <Divider />
 
-                    {/* Location Information */}
-                    <Box>
-                      <Text
-                        fontSize="xl"
-                        fontWeight="medium"
-                        mb={4}
-                        color={textColor}
-                      >
-                        Location Information
-                      </Text>
+                      {/* Location Information */}
+                      <Box>
+                        <Text
+                          fontSize="xl"
+                          fontWeight="medium"
+                          mb={4}
+                          color={textColor}
+                        >
+                          Location Information
+                        </Text>
 
-                      <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                        <FormControl isInvalid={!!errors.country} isRequired>
-                          <FormLabel htmlFor="country" color={textColor}>
-                            Country
+                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                          <FormControl isInvalid={!!errors.country} isRequired>
+                            <FormLabel htmlFor="country" color={textColor}>
+                              Country
+                            </FormLabel>
+                            <Input
+                              as="select"
+                              id="country"
+                              bg={inputBg}
+                              {...register("country")}
+                            >
+                              <option value="United States">
+                                United States
+                              </option>
+                              <option value="Canada">Canada</option>
+                              <option value="United Kingdom">
+                                United Kingdom
+                              </option>
+                              <option value="Australia">Australia</option>
+                              <option value="Germany">Germany</option>
+                              <option value="Other">Other</option>
+                            </Input>
+                            {errors.country && (
+                              <FormErrorMessage>
+                                {errors.country.message}
+                              </FormErrorMessage>
+                            )}
+                          </FormControl>
+
+                          <FormControl isInvalid={!!errors.zipCode} isRequired>
+                            <FormLabel htmlFor="zipCode" color={textColor}>
+                              {watchedValues.country === "United States"
+                                ? "ZIP Code"
+                                : watchedValues.country === "United Kingdom"
+                                ? "Postal Code"
+                                : "Postal/ZIP Code"}
+                            </FormLabel>
+                            <Input
+                              id="zipCode"
+                              placeholder={
+                                watchedValues.country === "United States"
+                                  ? "e.g. 12345"
+                                  : watchedValues.country === "Canada"
+                                  ? "e.g. A1A 1A1"
+                                  : "Postal/ZIP Code"
+                              }
+                              bg={inputBg}
+                              {...register("zipCode")}
+                            />
+                            <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                              Format changes based on selected country
+                            </Text>
+                            {errors.zipCode && (
+                              <FormErrorMessage>
+                                {errors.zipCode.message}
+                              </FormErrorMessage>
+                            )}
+                          </FormControl>
+                        </SimpleGrid>
+                      </Box>
+
+                      <Divider />
+
+                      {/* Date Range Section */}
+                      <Box>
+                        <Text
+                          fontSize="xl"
+                          fontWeight="medium"
+                          mb={4}
+                          color={textColor}
+                        >
+                          Date Range
+                        </Text>
+
+                        <DateRangePicker
+                          startDateName="startDate"
+                          endDateName="endDate"
+                          label="Select a date range"
+                          control={control}
+                          register={register}
+                          startDateError={errors.startDate}
+                          endDateError={errors.endDate}
+                          rangeError={rangeError}
+                          minDays={7}
+                          maxDays={90}
+                          onChange={handleDateRangeChange}
+                          isRequired={true}
+                          excludeWeekends={false}
+                        />
+                      </Box>
+
+                      <Divider />
+
+                      {/* Employment Section with Conditional Fields */}
+                      <Box>
+                        <Text
+                          fontSize="xl"
+                          fontWeight="medium"
+                          mb={4}
+                          color={textColor}
+                        >
+                          Employment Information
+                        </Text>
+
+                        <FormControl
+                          isInvalid={!!errors.employmentType}
+                          isRequired
+                          mb={6}
+                        >
+                          <FormLabel htmlFor="employmentType" color={textColor}>
+                            Employment Status
                           </FormLabel>
                           <Input
                             as="select"
-                            id="country"
+                            id="employmentType"
                             bg={inputBg}
-                            {...register("country")}
+                            {...register("employmentType")}
                           >
-                            <option value="United States">United States</option>
-                            <option value="Canada">Canada</option>
-                            <option value="United Kingdom">
-                              United Kingdom
-                            </option>
-                            <option value="Australia">Australia</option>
-                            <option value="Germany">Germany</option>
-                            <option value="Other">Other</option>
+                            <option value="employed">Employed</option>
+                            <option value="self-employed">Self-Employed</option>
+                            <option value="student">Student</option>
+                            <option value="unemployed">Unemployed</option>
+                            <option value="retired">Retired</option>
                           </Input>
-                          {errors.country && (
+                          {errors.employmentType && (
                             <FormErrorMessage>
-                              {errors.country.message}
+                              {errors.employmentType.message}
                             </FormErrorMessage>
                           )}
                         </FormControl>
 
-                        <FormControl isInvalid={!!errors.zipCode} isRequired>
-                          <FormLabel htmlFor="zipCode" color={textColor}>
-                            {watchedValues.country === "United States"
-                              ? "ZIP Code"
-                              : watchedValues.country === "United Kingdom"
-                              ? "Postal Code"
-                              : "Postal/ZIP Code"}
-                          </FormLabel>
-                          <Input
-                            id="zipCode"
-                            placeholder={
-                              watchedValues.country === "United States"
-                                ? "e.g. 12345"
-                                : watchedValues.country === "Canada"
-                                ? "e.g. A1A 1A1"
-                                : "Postal/ZIP Code"
-                            }
-                            bg={inputBg}
-                            {...register("zipCode")}
-                          />
-                          <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                            Format changes based on selected country
-                          </Text>
-                          {errors.zipCode && (
-                            <FormErrorMessage>
-                              {errors.zipCode.message}
-                            </FormErrorMessage>
-                          )}
-                        </FormControl>
-                      </SimpleGrid>
-                    </Box>
+                        <ConditionalValidation
+                          fields={conditionalFields}
+                          register={register}
+                          control={control}
+                          errors={
+                            errors as Record<string, FieldError | undefined>
+                          }
+                          title="Employment Details"
+                          description={`Additional information based on your employment status: ${employmentType}`}
+                        />
+                      </Box>
 
-                    <Divider />
-
-                    {/* Date Range Section */}
-                    <Box>
-                      <Text
-                        fontSize="xl"
-                        fontWeight="medium"
-                        mb={4}
-                        color={textColor}
-                      >
-                        Date Range
-                      </Text>
-
-                      <DateRangePicker
-                        startDateName="startDate"
-                        endDateName="endDate"
-                        label="Select a date range"
-                        control={control}
-                        register={register}
-                        startDateError={errors.startDate}
-                        endDateError={errors.endDate}
-                        rangeError={rangeError}
-                        minDays={7}
-                        maxDays={90}
-                        onChange={handleDateRangeChange}
-                        isRequired={true}
-                        excludeWeekends={false}
-                      />
-                    </Box>
-
-                    <Divider />
-
-                    {/* Employment Section with Conditional Fields */}
-                    <Box>
-                      <Text
-                        fontSize="xl"
-                        fontWeight="medium"
-                        mb={4}
-                        color={textColor}
-                      >
-                        Employment Information
-                      </Text>
+                      <Divider />
 
                       <FormControl
-                        isInvalid={!!errors.employmentType}
+                        isInvalid={!!errors.termsAccepted}
                         isRequired
-                        mb={6}
                       >
-                        <FormLabel htmlFor="employmentType" color={textColor}>
-                          Employment Status
-                        </FormLabel>
-                        <Input
-                          as="select"
-                          id="employmentType"
-                          bg={inputBg}
-                          {...register("employmentType")}
+                        <Checkbox
+                          id="termsAccepted"
+                          colorScheme="brand"
+                          isChecked={watch("termsAccepted")}
+                          onChange={(e) =>
+                            setValue("termsAccepted", e.target.checked)
+                          }
                         >
-                          <option value="employed">Employed</option>
-                          <option value="self-employed">Self-Employed</option>
-                          <option value="student">Student</option>
-                          <option value="unemployed">Unemployed</option>
-                          <option value="retired">Retired</option>
-                        </Input>
-                        {errors.employmentType && (
+                          <Text fontSize="sm" color={textColor}>
+                            I accept the terms and conditions
+                          </Text>
+                        </Checkbox>
+                        {errors.termsAccepted && (
                           <FormErrorMessage>
-                            {errors.employmentType.message}
+                            {errors.termsAccepted.message}
                           </FormErrorMessage>
                         )}
                       </FormControl>
 
-                      <ConditionalValidation
-                        fields={conditionalFields}
-                        register={register}
-                        control={control}
-                        errors={
-                          errors as Record<string, FieldError | undefined>
-                        }
-                        title="Employment Details"
-                        description={`Additional information based on your employment status: ${employmentType}`}
+                      <Button
+                        type="submit"
+                        colorScheme="brand"
+                        size="lg"
+                        isLoading={isSubmitting}
+                        loadingText="Validating..."
+                        isDisabled={!!rangeError}
+                      >
+                        Submit
+                      </Button>
+                    </VStack>
+                  </Box>
+                </VStack>
+              </TabPanel>
+              <TabPanel>
+                <VStack spacing={6} align="stretch" py={5}>
+                  <Box>
+                    <Heading size="md" mb={4} color={textColor}>
+                      1. Custom Validation with Zod
+                    </Heading>
+                    <Text mb={4} color={mutedTextColor}>
+                      Implement powerful validation rules using Zod's refinement
+                      capabilities:
+                    </Text>
+                    <Box
+                      borderWidth="1px"
+                      borderColor={cardBorder}
+                      borderRadius="md"
+                      overflow="hidden"
+                    >
+                      <CodeBlock
+                        code={customValidationCode}
+                        language="typescript"
                       />
                     </Box>
+                  </Box>
 
-                    <Divider />
-
-                    <FormControl isInvalid={!!errors.termsAccepted} isRequired>
-                      <Checkbox
-                        id="termsAccepted"
-                        colorScheme="brand"
-                        isChecked={watch("termsAccepted")}
-                        onChange={(e) =>
-                          setValue("termsAccepted", e.target.checked)
-                        }
-                      >
-                        <Text fontSize="sm" color={textColor}>
-                          I accept the terms and conditions
-                        </Text>
-                      </Checkbox>
-                      {errors.termsAccepted && (
-                        <FormErrorMessage>
-                          {errors.termsAccepted.message}
-                        </FormErrorMessage>
-                      )}
-                    </FormControl>
-
-                    <Button
-                      type="submit"
-                      colorScheme="brand"
-                      size="lg"
-                      isLoading={isSubmitting}
-                      loadingText="Validating..."
-                      isDisabled={!!rangeError}
+                  <Box>
+                    <Heading size="md" mb={4} color={textColor}>
+                      2. Advanced Validation Components
+                    </Heading>
+                    <Text mb={4} color={mutedTextColor}>
+                      Create reusable components for specialized validation
+                      needs:
+                    </Text>
+                    <Box
+                      borderWidth="1px"
+                      borderColor={cardBorder}
+                      borderRadius="md"
+                      overflow="hidden"
                     >
-                      Submit
-                    </Button>
-                  </VStack>
-                </Box>
-              </VStack>
-            </TabPanel>
-            <TabPanel>
-              <VStack spacing={6} align="stretch" py={5}>
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    1. Custom Validation with Zod
-                  </Heading>
-                  <Text mb={4} color={mutedTextColor}>
-                    Implement powerful validation rules using Zod's refinement
-                    capabilities:
-                  </Text>
-                  <Box
-                    borderWidth="1px"
-                    borderColor={cardBorder}
-                    borderRadius="md"
-                    overflow="hidden"
-                  >
-                    <CodeBlock
-                      code={customValidationCode}
-                      language="typescript"
-                    />
+                      <CodeBlock
+                        code={advancedComponentsCode}
+                        language="typescript"
+                      />
+                    </Box>
                   </Box>
-                </Box>
 
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    2. Advanced Validation Components
-                  </Heading>
-                  <Text mb={4} color={mutedTextColor}>
-                    Create reusable components for specialized validation needs:
-                  </Text>
-                  <Box
-                    borderWidth="1px"
-                    borderColor={cardBorder}
-                    borderRadius="md"
-                    overflow="hidden"
-                  >
-                    <CodeBlock
-                      code={advancedComponentsCode}
-                      language="typescript"
-                    />
+                  <Box>
+                    <Heading size="md" mb={4} color={textColor}>
+                      3. Validation Context for State Management
+                    </Heading>
+                    <Text mb={4} color={mutedTextColor}>
+                      Centralize validation logic and caching for better
+                      performance:
+                    </Text>
+                    <Box
+                      borderWidth="1px"
+                      borderColor={cardBorder}
+                      borderRadius="md"
+                      overflow="hidden"
+                    >
+                      <CodeBlock
+                        code={validationContextCode}
+                        language="typescript"
+                      />
+                    </Box>
                   </Box>
-                </Box>
 
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    3. Validation Context for State Management
-                  </Heading>
-                  <Text mb={4} color={mutedTextColor}>
-                    Centralize validation logic and caching for better
-                    performance:
-                  </Text>
-                  <Box
-                    borderWidth="1px"
-                    borderColor={cardBorder}
-                    borderRadius="md"
-                    overflow="hidden"
-                  >
-                    <CodeBlock
-                      code={validationContextCode}
-                      language="typescript"
-                    />
+                  <Box>
+                    <Heading size="md" mb={4} color={textColor}>
+                      4. Implementation Considerations
+                    </Heading>
+                    <VStack align="stretch" spacing={4} color={mutedTextColor}>
+                      <Text>
+                        <strong>Performance Optimization:</strong> Use
+                        debouncing for real-time validation to avoid excessive
+                        API calls and re-renders.
+                      </Text>
+                      <Text>
+                        <strong>Error Handling:</strong> Provide clear,
+                        actionable error messages that guide users on how to fix
+                        issues.
+                      </Text>
+                      <Text>
+                        <strong>Progressive Disclosure:</strong> Show validation
+                        feedback progressively as users interact with the form,
+                        not all at once.
+                      </Text>
+                      <Text>
+                        <strong>Client-Server Validation:</strong> Always
+                        validate on both client and server for security - client
+                        validation is for UX, server validation for security.
+                      </Text>
+                      <Text>
+                        <strong>Reusable Components:</strong> Build a library of
+                        validation components for consistent behavior across
+                        your application.
+                      </Text>
+                    </VStack>
                   </Box>
-                </Box>
-
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    4. Implementation Considerations
-                  </Heading>
-                  <VStack align="stretch" spacing={4} color={mutedTextColor}>
-                    <Text>
-                      <strong>Performance Optimization:</strong> Use debouncing
-                      for real-time validation to avoid excessive API calls and
-                      re-renders.
-                    </Text>
-                    <Text>
-                      <strong>Error Handling:</strong> Provide clear, actionable
-                      error messages that guide users on how to fix issues.
-                    </Text>
-                    <Text>
-                      <strong>Progressive Disclosure:</strong> Show validation
-                      feedback progressively as users interact with the form,
-                      not all at once.
-                    </Text>
-                    <Text>
-                      <strong>Client-Server Validation:</strong> Always validate
-                      on both client and server for security - client validation
-                      is for UX, server validation for security.
-                    </Text>
-                    <Text>
-                      <strong>Reusable Components:</strong> Build a library of
-                      validation components for consistent behavior across your
-                      application.
-                    </Text>
-                  </VStack>
-                </Box>
-              </VStack>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </FormPageLayout>
-    </ValidationContextProvider>
-  );
+                </VStack>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </FormPageLayout>
+      </ValidationContextProvider>
+    );
+  } catch (error) {
+    console.error("Form rendering error:", error);
+    return (
+      <div>
+        There was an error rendering the form. Check the console for details.
+      </div>
+    );
+  }
 }

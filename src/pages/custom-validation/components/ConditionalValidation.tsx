@@ -12,7 +12,6 @@ import {
   useColorModeValue,
   Divider,
   Collapse,
-  Button,
   Alert,
   AlertIcon,
 } from "@chakra-ui/react";
@@ -75,7 +74,9 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
 }) => {
   const [visibleFields, setVisibleFields] = useState<string[]>([]);
   const [showNoFieldsMessage, setShowNoFieldsMessage] = useState(false);
-  const formValues = useWatch({ control });
+  
+  // Use useWatch to track form values safely
+  const formValues = useWatch({ control }) || {};
 
   // Colors
   const textColor = useColorModeValue("gray.700", "gray.200");
@@ -88,25 +89,30 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
     condition: Condition,
     values: Record<string, any>
   ): boolean => {
-    switch (condition.type) {
-      case "equals":
-        return values[condition.field] === condition.value;
-      case "notEquals":
-        return values[condition.field] !== condition.value;
-      case "contains":
-        return String(values[condition.field]).includes(condition.value);
-      case "greaterThan":
-        return Number(values[condition.field]) > condition.value;
-      case "lessThan":
-        return Number(values[condition.field]) < condition.value;
-      case "isEmpty":
-        return !values[condition.field] || values[condition.field] === "";
-      case "isNotEmpty":
-        return !!values[condition.field] && values[condition.field] !== "";
-      case "custom":
-        return condition.predicate(values);
-      default:
-        return false;
+    try {
+      switch (condition.type) {
+        case "equals":
+          return values[condition.field] === condition.value;
+        case "notEquals":
+          return values[condition.field] !== condition.value;
+        case "contains":
+          return String(values[condition.field] || "").includes(condition.value);
+        case "greaterThan":
+          return Number(values[condition.field] || 0) > condition.value;
+        case "lessThan":
+          return Number(values[condition.field] || 0) < condition.value;
+        case "isEmpty":
+          return !values[condition.field] || values[condition.field] === "";
+        case "isNotEmpty":
+          return !!values[condition.field] && values[condition.field] !== "";
+        case "custom":
+          return condition.predicate(values);
+        default:
+          return false;
+      }
+    } catch (error) {
+      console.error("Error evaluating condition:", error);
+      return false;
     }
   };
 
@@ -115,233 +121,260 @@ const ConditionalValidation: React.FC<ConditionalValidationProps> = ({
     conditions: Condition | Condition[],
     values: Record<string, any>
   ): boolean => {
-    if (Array.isArray(conditions)) {
-      return conditions.every((condition) =>
-        evaluateCondition(condition, values)
-      );
+    try {
+      if (Array.isArray(conditions)) {
+        return conditions.every((condition) =>
+          evaluateCondition(condition, values)
+        );
+      }
+      return evaluateCondition(conditions, values);
+    } catch (error) {
+      console.error("Error evaluating conditions:", error);
+      return false;
     }
-    return evaluateCondition(conditions, values);
   };
 
   // Update visible fields when form values change
   useEffect(() => {
-    if (!formValues) return;
+    try {
+      if (!formValues) return;
 
-    const visible = fields
-      .filter((field) => evaluateConditions(field.condition, formValues))
-      .map((field) => field.name);
+      const visible = fields
+        .filter((field) => evaluateConditions(field.condition, formValues))
+        .map((field) => field.name);
 
-    setVisibleFields(visible);
-    setShowNoFieldsMessage(visible.length === 0);
+      setVisibleFields(visible);
+      setShowNoFieldsMessage(visible.length === 0);
+    } catch (error) {
+      console.error("Error updating visible fields:", error);
+      setVisibleFields([]);
+      setShowNoFieldsMessage(true);
+    }
   }, [formValues, fields]);
 
   // Render a single field based on its type
   const renderField = (field: ConditionalFieldConfig) => {
-    const isVisible = visibleFields.includes(field.name);
-    const error = errors[field.name];
+    try {
+      const isVisible = visibleFields.includes(field.name);
+      const error = errors[field.name];
 
-    if (!isVisible) return null;
+      if (!isVisible) return null;
 
-    switch (field.type) {
-      case "text":
-      case "email":
-      case "password":
-      case "date":
-        return (
-          <FormControl
-            key={field.name}
-            isInvalid={!!error}
-            isRequired={field.isRequired}
-            mb={4}
-          >
-            <FormLabel htmlFor={field.name} color={textColor}>
-              {field.label}
-            </FormLabel>
-            <Input
-              id={field.name}
-              type={field.type}
-              placeholder={field.placeholder}
-              {...register(field.name)}
-              defaultValue={field.defaultValue}
-              _focus={{
-                borderColor: "brand.500",
-                boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
-              }}
-            />
-            {field.helperText && !error && (
-              <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                {field.helperText}
-              </Text>
-            )}
-            {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-          </FormControl>
-        );
-
-      case "number":
-        return (
-          <FormControl
-            key={field.name}
-            isInvalid={!!error}
-            isRequired={field.isRequired}
-            mb={4}
-          >
-            <FormLabel htmlFor={field.name} color={textColor}>
-              {field.label}
-            </FormLabel>
-            <Input
-              id={field.name}
-              type="number"
-              placeholder={field.placeholder}
-              {...register(field.name, { valueAsNumber: true })}
-              defaultValue={field.defaultValue}
-              _focus={{
-                borderColor: "brand.500",
-                boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
-              }}
-            />
-            {field.helperText && !error && (
-              <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                {field.helperText}
-              </Text>
-            )}
-            {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-          </FormControl>
-        );
-
-      case "select":
-        return (
-          <FormControl
-            key={field.name}
-            isInvalid={!!error}
-            isRequired={field.isRequired}
-            mb={4}
-          >
-            <FormLabel htmlFor={field.name} color={textColor}>
-              {field.label}
-            </FormLabel>
-            <Select
-              id={field.name}
-              placeholder={field.placeholder || "Select an option"}
-              {...register(field.name)}
-              defaultValue={field.defaultValue}
-              _focus={{
-                borderColor: "brand.500",
-                boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
-              }}
+      switch (field.type) {
+        case "text":
+        case "email":
+        case "password":
+        case "date":
+          return (
+            <FormControl
+              key={field.name}
+              isInvalid={!!error}
+              isRequired={field.isRequired}
+              mb={4}
             >
-              {field.options?.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </Select>
-            {field.helperText && !error && (
-              <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                {field.helperText}
-              </Text>
-            )}
-            {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-          </FormControl>
-        );
+              <FormLabel htmlFor={field.name} color={textColor}>
+                {field.label}
+              </FormLabel>
+              <Input
+                id={field.name}
+                type={field.type}
+                placeholder={field.placeholder}
+                {...register(field.name)}
+                defaultValue={field.defaultValue}
+                _focus={{
+                  borderColor: "brand.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                }}
+              />
+              {field.helperText && !error && (
+                <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                  {field.helperText}
+                </Text>
+              )}
+              {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+            </FormControl>
+          );
 
-      case "checkbox":
-        return (
-          <FormControl
-            key={field.name}
-            isInvalid={!!error}
-            isRequired={field.isRequired}
-            mb={4}
-          >
-            <Checkbox
-              id={field.name}
-              {...register(field.name)}
-              defaultChecked={!!field.defaultValue}
-              colorScheme="brand"
+        case "number":
+          return (
+            <FormControl
+              key={field.name}
+              isInvalid={!!error}
+              isRequired={field.isRequired}
+              mb={4}
             >
-              <Text color={textColor}>{field.label}</Text>
-            </Checkbox>
-            {field.helperText && !error && (
-              <Text fontSize="xs" color={mutedTextColor} mt={1} ml={6}>
-                {field.helperText}
-              </Text>
-            )}
-            {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-          </FormControl>
-        );
+              <FormLabel htmlFor={field.name} color={textColor}>
+                {field.label}
+              </FormLabel>
+              <Input
+                id={field.name}
+                type="number"
+                placeholder={field.placeholder}
+                {...register(field.name, { valueAsNumber: true })}
+                defaultValue={field.defaultValue}
+                _focus={{
+                  borderColor: "brand.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                }}
+              />
+              {field.helperText && !error && (
+                <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                  {field.helperText}
+                </Text>
+              )}
+              {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+            </FormControl>
+          );
 
-      case "textarea":
-        return (
-          <FormControl
-            key={field.name}
-            isInvalid={!!error}
-            isRequired={field.isRequired}
-            mb={4}
-          >
-            <FormLabel htmlFor={field.name} color={textColor}>
-              {field.label}
-            </FormLabel>
-            <Input
-              as="textarea"
-              id={field.name}
-              placeholder={field.placeholder}
-              {...register(field.name)}
-              defaultValue={field.defaultValue}
-              minH="100px"
-              py={2}
-              _focus={{
-                borderColor: "brand.500",
-                boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
-              }}
-            />
-            {field.helperText && !error && (
-              <Text fontSize="xs" color={mutedTextColor} mt={1}>
-                {field.helperText}
-              </Text>
-            )}
-            {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-          </FormControl>
-        );
+        case "select":
+          return (
+            <FormControl
+              key={field.name}
+              isInvalid={!!error}
+              isRequired={field.isRequired}
+              mb={4}
+            >
+              <FormLabel htmlFor={field.name} color={textColor}>
+                {field.label}
+              </FormLabel>
+              <Select
+                id={field.name}
+                placeholder={field.placeholder || "Select an option"}
+                {...register(field.name)}
+                defaultValue={field.defaultValue}
+                _focus={{
+                  borderColor: "brand.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                }}
+              >
+                {field.options?.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </Select>
+              {field.helperText && !error && (
+                <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                  {field.helperText}
+                </Text>
+              )}
+              {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+            </FormControl>
+          );
 
-      default:
-        return null;
+        case "checkbox":
+          return (
+            <FormControl
+              key={field.name}
+              isInvalid={!!error}
+              isRequired={field.isRequired}
+              mb={4}
+            >
+              <Checkbox
+                id={field.name}
+                {...register(field.name)}
+                defaultChecked={!!field.defaultValue}
+                colorScheme="brand"
+              >
+                <Text color={textColor}>{field.label}</Text>
+              </Checkbox>
+              {field.helperText && !error && (
+                <Text fontSize="xs" color={mutedTextColor} mt={1} ml={6}>
+                  {field.helperText}
+                </Text>
+              )}
+              {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+            </FormControl>
+          );
+
+        case "textarea":
+          return (
+            <FormControl
+              key={field.name}
+              isInvalid={!!error}
+              isRequired={field.isRequired}
+              mb={4}
+            >
+              <FormLabel htmlFor={field.name} color={textColor}>
+                {field.label}
+              </FormLabel>
+              <Input
+                as="textarea"
+                id={field.name}
+                placeholder={field.placeholder}
+                {...register(field.name)}
+                defaultValue={field.defaultValue}
+                minH="100px"
+                py={2}
+                _focus={{
+                  borderColor: "brand.500",
+                  boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+                }}
+              />
+              {field.helperText && !error && (
+                <Text fontSize="xs" color={mutedTextColor} mt={1}>
+                  {field.helperText}
+                </Text>
+              )}
+              {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+            </FormControl>
+          );
+
+        default:
+          return null;
+      }
+    } catch (error) {
+      console.error("Error rendering field:", error, field);
+      return null;
     }
   };
 
-  return (
-    <Box
-      p={4}
-      borderWidth="1px"
-      borderColor={borderColor}
-      borderRadius="md"
-      bg={bgColor}
-    >
-      {title && (
-        <Text fontSize="lg" fontWeight="medium" mb={2} color={textColor}>
-          {title}
-        </Text>
-      )}
-
-      {description && (
-        <>
-          <Text fontSize="sm" color={mutedTextColor} mb={4}>
-            {description}
+  // Add error boundary wrapper
+  try {
+    return (
+      <Box
+        p={4}
+        borderWidth="1px"
+        borderColor={borderColor}
+        borderRadius="md"
+        bg={bgColor}
+      >
+        {title && (
+          <Text fontSize="lg" fontWeight="medium" mb={2} color={textColor}>
+            {title}
           </Text>
-          <Divider mb={4} />
-        </>
-      )}
+        )}
 
-      <Collapse in={showNoFieldsMessage} animateOpacity>
-        <Alert status="info" mb={4} borderRadius="md">
-          <AlertIcon />
-          <Text fontSize="sm">
-            Additional fields will appear based on your selections above.
-          </Text>
-        </Alert>
-      </Collapse>
+        {description && (
+          <>
+            <Text fontSize="sm" color={mutedTextColor} mb={4}>
+              {description}
+            </Text>
+            <Divider mb={4} />
+          </>
+        )}
 
-      <Stack spacing={2}>{fields.map((field) => renderField(field))}</Stack>
-    </Box>
-  );
+        <Collapse in={showNoFieldsMessage} animateOpacity>
+          <Alert status="info" mb={4} borderRadius="md">
+            <AlertIcon />
+            <Text fontSize="sm">
+              Additional fields will appear based on your selections above.
+            </Text>
+          </Alert>
+        </Collapse>
+
+        <Stack spacing={2}>{fields.map((field) => renderField(field))}</Stack>
+      </Box>
+    );
+  } catch (error) {
+    console.error("Error rendering ConditionalValidation:", error);
+    return (
+      <Alert status="error" mb={4} borderRadius="md">
+        <AlertIcon />
+        <Text>Error rendering conditional fields. Check the console for details.</Text>
+      </Alert>
+    );
+  }
 };
 
 export default ConditionalValidation;

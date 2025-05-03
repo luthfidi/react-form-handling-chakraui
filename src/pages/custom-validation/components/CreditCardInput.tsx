@@ -139,7 +139,6 @@ const CreditCardInput = forwardRef<any, CreditCardInputProps>(
     // Use controller to get values and onChange from React Hook Form
     const {
       field: { value, onChange },
-      fieldState: { invalid },
     } = useController({
       name,
       control, // Using the control prop

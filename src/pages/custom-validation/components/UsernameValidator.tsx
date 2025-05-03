@@ -32,6 +32,7 @@ import {
   UseFormRegister,
   FieldError,
   useFormContext,
+  Control,
 } from "react-hook-form";
 
 interface UsernameValidatorProps {
@@ -39,6 +40,7 @@ interface UsernameValidatorProps {
   name: string;
   label: string;
   register: UseFormRegister<any>;
+  control: Control<any>;
   error?: FieldError;
   isRequired?: boolean;
   placeholder?: string;
@@ -306,7 +308,6 @@ const UsernameValidator = forwardRef<any, UsernameValidatorProps>(
     const formContext = useFormContext();
     const {
       field: { value, onChange },
-      fieldState: { invalid },
     } = useController({
       name,
       control: formContext.control,
