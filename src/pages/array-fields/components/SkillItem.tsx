@@ -26,8 +26,8 @@ const SkillItem = ({ index, register, control, onRemove }: SkillItemProps) => {
   const textColor = useColorModeValue("gray.700", "gray.200");
 
   return (
-    <HStack spacing={4} align="flex-start" width="full">
-      <FormControl isInvalid={!!skillErrors?.name} flex={2}>
+    <HStack spacing={2} align="center" justifyContent="center" width="full">
+      <FormControl isInvalid={!!skillErrors?.name} flex={1}>
         <FormLabel
           htmlFor={`skills.${index}.name`}
           color={textColor}
@@ -83,7 +83,7 @@ const SkillItem = ({ index, register, control, onRemove }: SkillItemProps) => {
         aria-label="Remove skill"
         icon={<DeleteIcon />}
         onClick={onRemove}
-        alignSelf="flex-end"
+        alignSelf="center"
         mt={8}
         size="sm"
         colorScheme="red"

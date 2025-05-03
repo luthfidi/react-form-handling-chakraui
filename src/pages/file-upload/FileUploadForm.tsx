@@ -26,8 +26,12 @@ import {
   CloseButton,
   Checkbox,
   SimpleGrid,
+  Tooltip,
+  IconButton,
+  Flex,
 } from "@chakra-ui/react";
 import { FaFileUpload } from "react-icons/fa";
+import { MdAutoFixHigh } from "react-icons/md";
 import FormPageLayout from "../../components/layout/FormPageLayout";
 import CodeBlock from "../../components/ui/CodeBlock";
 import {
@@ -39,51 +43,12 @@ import {
 } from "../../schemas/fileUploadSchema";
 import SingleFileUpload from "./components/SingleFileUpload";
 import MultiFileUpload from "./components/MultiFileUpload";
-import {
-  mockFileObject,
-  fileUploadFormSampleData,
-} from "../../utils/SampleData";
+import { fileUploadFormSampleData } from "../../utils/SampleData";
 
 export default function FileUploadForm() {
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
-  const [formSummary, setFormSummary] = useState<any>(null);
+  const [formData, setFormData] = useState<FormData | null>(null);
   const successAlertRef = useRef<HTMLDivElement>(null);
-  const fillWithSampleData = () => {
-    // Basic fields - as any to bypass type checking temporarily
-    reset({
-      title: fileUploadFormSampleData.title,
-      description: fileUploadFormSampleData.description,
-      termsAccepted: fileUploadFormSampleData.termsAccepted,
-    } as any);
-
-    // Special handling for files - avoid type errors with safe checks
-    if (fileUploadFormSampleData.mockFiles) {
-      const { mockFiles } = fileUploadFormSampleData;
-
-      // Set profile image if available
-      if (mockFiles.profileImage) {
-        setValue("profileImage", mockFiles.profileImage as any);
-      }
-
-      // Set resume if available
-      if (mockFiles.resume) {
-        setValue("resume", mockFiles.resume as any);
-      }
-
-      // Set portfolio images if available
-      if (mockFiles.portfolioImages && mockFiles.portfolioImages.length > 0) {
-        setValue("portfolioImages", mockFiles.portfolioImages as any);
-      }
-
-      // Set additional documents if available
-      if (
-        mockFiles.additionalDocuments &&
-        mockFiles.additionalDocuments.length > 0
-      ) {
-        setValue("additionalDocuments", mockFiles.additionalDocuments as any);
-      }
-    }
-  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -96,7 +61,9 @@ export default function FileUploadForm() {
     register,
     handleSubmit,
     control,
+    watch,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm<FileUploadFormData>({
     resolver: zodResolver(fileUploadSchema),
     defaultValues: {
@@ -107,6 +74,50 @@ export default function FileUploadForm() {
       termsAccepted: false,
     },
   });
+
+  // Function to fill the form with sample data
+  const fillWithSampleData = () => {
+    // Basic fields
+    setValue("title", fileUploadFormSampleData.title);
+    setValue("description", fileUploadFormSampleData.description);
+
+    // For the file fields, create mock File objects
+    if (fileUploadFormSampleData.mockFiles) {
+      const { mockFiles } = fileUploadFormSampleData;
+
+      // Set profile image
+      if (mockFiles.profileImage) {
+        setValue("profileImage", mockFiles.profileImage as any);
+      }
+
+      // Set resume
+      if (mockFiles.resume) {
+        setValue("resume", mockFiles.resume as any);
+      }
+
+      // Set portfolio images
+      if (mockFiles.portfolioImages && mockFiles.portfolioImages.length > 0) {
+        setValue("portfolioImages", mockFiles.portfolioImages as any);
+      }
+
+      // Set additional documents
+      if (
+        mockFiles.additionalDocuments &&
+        mockFiles.additionalDocuments.length > 0
+      ) {
+        setValue("additionalDocuments", mockFiles.additionalDocuments as any);
+      }
+    }
+
+    // Set the checkbox after a short delay to ensure it gets properly updated
+    setTimeout(() => {
+      setValue("termsAccepted", true, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    }, 100);
+  };
 
   const onSubmit = (data: FileUploadFormData) => {
     // Simulate API call
@@ -148,7 +159,7 @@ export default function FileUploadForm() {
             : [],
         };
 
-        setFormSummary(summary);
+        setFormData(summary as any);
         setIsSubmitSuccessful(true);
         resolve();
 
@@ -323,7 +334,7 @@ export const fileUploadSchema = z.object({
                     Your files have been uploaded successfully.
                   </AlertDescription>
 
-                  {formSummary && (
+                  {formData && (
                     <Box
                       mt={4}
                       p={3}
@@ -338,7 +349,7 @@ export const fileUploadSchema = z.object({
                         Submission Summary:
                       </Text>
                       <CodeBlock
-                        code={JSON.stringify(formSummary, null, 2)}
+                        code={JSON.stringify(formData, null, 2)}
                         language="json"
                         showLineNumbers={false}
                       />
@@ -368,9 +379,21 @@ export const fileUploadSchema = z.object({
                 borderColor={cardBorder}
               >
                 <VStack spacing={8} align="stretch">
-                  <Heading size="md" color={textColor}>
-                    Project Information
-                  </Heading>
+                  <Flex alignItems="center" mb={4}>
+                    <Heading size="md" color={textColor} mr={2}>
+                      Project Information
+                    </Heading>
+                    <Tooltip label="Fill with sample data" placement="top">
+                      <IconButton
+                        aria-label="Fill with sample data"
+                        icon={<MdAutoFixHigh />}
+                        size="sm"
+                        onClick={fillWithSampleData}
+                        colorScheme="blue"
+                        variant="ghost"
+                      />
+                    </Tooltip>
+                  </Flex>
 
                   <SimpleGrid columns={{ base: 1, md: 1 }} spacing={6}>
                     <FormControl isInvalid={!!errors.title} isRequired>
@@ -481,7 +504,10 @@ export const fileUploadSchema = z.object({
                     <Checkbox
                       id="termsAccepted"
                       colorScheme="brand"
-                      {...register("termsAccepted")}
+                      isChecked={watch("termsAccepted")}
+                      onChange={(e) =>
+                        setValue("termsAccepted", e.target.checked)
+                      }
                     >
                       <Text fontSize="sm" color={textColor}>
                         I accept the terms and conditions and confirm that all

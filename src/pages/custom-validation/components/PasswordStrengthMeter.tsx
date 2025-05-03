@@ -8,6 +8,7 @@ import {
   useColorModeValue,
   Icon,
   Flex,
+  Badge,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 
@@ -15,23 +16,6 @@ interface PasswordStrengthMeterProps {
   password: string;
   showChecklist?: boolean;
 }
-
-interface ValidationResult {
-  hasMinLength: boolean;
-  hasUppercase: boolean;
-  hasLowercase: boolean;
-  hasNumber: boolean;
-  hasSpecial: boolean;
-}
-
-// Password strength levels
-const strengthLevels = [
-  { label: "Weak", color: "red", minScore: 0 },
-  { label: "Fair", color: "orange", minScore: 2 },
-  { label: "Good", color: "yellow", minScore: 3 },
-  { label: "Strong", color: "green", minScore: 4 },
-  { label: "Very Strong", color: "green", minScore: 5 },
-];
 
 const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
   password,
@@ -42,7 +26,7 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
   const mutedTextColor = useColorModeValue("gray.600", "gray.400");
 
   // Validate password criteria
-  const validation = useMemo((): ValidationResult => {
+  const validation = useMemo(() => {
     return {
       hasMinLength: password.length >= 8,
       hasUppercase: /[A-Z]/.test(password),
@@ -69,14 +53,19 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
     return score;
   }, [validation, password]);
 
-  // Check the strength level determination
-  const strengthLevel = useMemo(() => {
-    if (!password) return strengthLevels[0];
-    return (
-      strengthLevels.find((level) => score >= level.minScore) ||
-      strengthLevels[0]
-    );
-  }, [score, password]);
+  // Get strength level
+  const getStrengthLabel = (score: number): string => {
+    if (score <= 2) return "Weak";
+    if (score <= 3) return "Good";
+    return "Strong";
+  };
+
+  // Get strength color
+  const getStrengthColor = (score: number): string => {
+    if (score <= 2) return "red";
+    if (score <= 3) return "yellow";
+    return "green";
+  };
 
   // Calculate progress percentage (0-100)
   const progressPercent = useMemo(() => {
@@ -105,16 +94,16 @@ const PasswordStrengthMeter: React.FC<PasswordStrengthMeterProps> = ({
         <Text
           fontSize="xs"
           fontWeight="bold"
-          color={`${strengthLevel.color}.500`}
+          color={`${getStrengthColor(score)}.500`}
         >
-          {strengthLevel.label}
+          {getStrengthLabel(score)}
         </Text>
       </Flex>
 
       <Progress
         value={progressPercent}
         size="sm"
-        colorScheme={strengthLevel.color}
+        colorScheme={getStrengthColor(score)}
         bg={bgColor}
         borderRadius="full"
       />

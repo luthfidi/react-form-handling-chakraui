@@ -100,6 +100,17 @@ export default function NestedObjectsForm() {
   const [accordionIndexes, setAccordionIndexes] = useState<number[]>([0]);
   const fillWithSampleData = () => {
     reset(nestedObjectsFormSampleData as any); // Use type assertion to bypass type checking
+
+    // Set the checkbox explicitly
+    setValue("termsAccepted", true, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+
+    // Open all accordion panels
+    // This assumes you have 4 accordion items (0-3)
+    setAccordionIndexes([0, 1, 2, 3]);
   };
 
   // Color modes
@@ -115,6 +126,7 @@ export default function NestedObjectsForm() {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FormData>({
@@ -366,12 +378,8 @@ const onSubmit = (data: FormData) => {
                 borderWidth="1px"
                 borderColor={cardBorder}
               >
-                <VStack spacing={8} align="stretch">
-                  <Flex
-                    justifyContent="space-between"
-                    alignItems="center"
-                    mb={4}
-                  >
+                <VStack spacing={4} align="stretch">
+                  <Flex alignItems="center" mb={2}>
                     <Heading size="md" color={textColor}>
                       Subscription Form
                     </Heading>
@@ -383,6 +391,7 @@ const onSubmit = (data: FormData) => {
                         onClick={fillWithSampleData}
                         colorScheme="blue"
                         variant="ghost"
+                        m={2}
                       />
                     </Tooltip>
                   </Flex>
@@ -1083,7 +1092,10 @@ const onSubmit = (data: FormData) => {
                     <Checkbox
                       id="termsAccepted"
                       colorScheme="brand"
-                      {...register("termsAccepted")}
+                      isChecked={watch("termsAccepted")}
+                      onChange={(e) =>
+                        setValue("termsAccepted", e.target.checked)
+                      }
                     >
                       <Text fontSize="sm" color={textColor}>
                         I accept the terms and conditions and acknowledge the

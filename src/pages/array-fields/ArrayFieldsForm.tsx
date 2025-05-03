@@ -294,11 +294,9 @@ const {
                 borderWidth="1px"
                 borderColor={cardBorder}
               >
-                <VStack spacing={8} align="stretch">
+                <VStack spacing={6} align="stretch">
                   <Flex
-                    justifyContent="space-between"
                     alignItems="center"
-                    mb={4}
                   >
                     <Heading size="md" color={textColor}>
                       Personal Information
@@ -311,6 +309,7 @@ const {
                         onClick={fillWithSampleData}
                         colorScheme="blue"
                         variant="ghost"
+                        m={2}
                       />
                     </Tooltip>
                   </Flex>

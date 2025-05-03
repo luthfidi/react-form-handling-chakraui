@@ -170,7 +170,10 @@ const I18nForm: React.FC<I18nFormProps> = ({
             <Checkbox
               id={field.name}
               colorScheme="brand"
-              {...register(field.name as keyof I18nFormData)}
+              isChecked={!!watch(field.name as keyof I18nFormData)}
+              onChange={(e) =>
+                setValue(field.name as keyof I18nFormData, e.target.checked)
+              }
             >
               {fieldTranslation.label}
             </Checkbox>
