@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import React, {
+  useState,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import {
   FormControl,
   FormLabel,
@@ -10,7 +14,6 @@ import {
   Text,
   useColorModeValue,
   Icon,
-  Box,
 } from "@chakra-ui/react";
 import {
   FaCreditCard,
@@ -19,13 +22,19 @@ import {
   FaCcAmex,
   FaCcDiscover,
 } from "react-icons/fa";
-import { UseFormRegister, FieldError } from "react-hook-form";
+import {
+  UseFormRegister,
+  FieldError,
+  useController,
+  Control,
+} from "react-hook-form";
 
 interface CreditCardInputProps {
   id: string;
   name: string;
   label: string;
   register: UseFormRegister<any>;
+  control: Control<any>; // Added control prop
   error?: FieldError;
   isRequired?: boolean;
   onCardTypeChange?: (cardType: string) => void;
@@ -101,149 +110,206 @@ const validateLuhn = (cardNumber: string): boolean => {
   return sum % 10 === 0;
 };
 
-const CreditCardInput: React.FC<CreditCardInputProps> = ({
-  id,
-  name,
-  label,
-  register,
-  error,
-  isRequired = false,
-  onCardTypeChange,
-  placeholder = "4929 9223 1698 6350",
-  helperText,
-}) => {
-  const [formattedValue, setFormattedValue] = useState("");
-  const [cardType, setCardType] = useState("generic");
-  const [isValid, setIsValid] = useState<boolean | null>(null);
+// Forward ref implementation
+const CreditCardInput = forwardRef<any, CreditCardInputProps>(
+  (
+    {
+      id,
+      name,
+      label,
+      register,
+      control,
+      error,
+      isRequired = false,
+      onCardTypeChange,
+      placeholder = "4929 9223 1698 6350",
+      helperText,
+    },
+    ref
+  ) => {
+    const [formattedValue, setFormattedValue] = useState("");
+    const [cardType, setCardType] = useState("generic");
+    const [isValid, setIsValid] = useState<boolean | null>(null);
 
-  const textColor = useColorModeValue("gray.700", "gray.200");
-  const mutedTextColor = useColorModeValue("gray.600", "gray.400");
-  const validIconColor = useColorModeValue("green.500", "green.400");
-  const invalidIconColor = useColorModeValue("red.500", "red.400");
+    const textColor = useColorModeValue("gray.700", "gray.200");
+    const mutedTextColor = useColorModeValue("gray.600", "gray.400");
+    const validIconColor = useColorModeValue("green.500", "green.400");
+    const invalidIconColor = useColorModeValue("red.500", "red.400");
 
-  // Get the CardIcon component based on detected type
-  const CardIcon =
-    cardTypes.find((card) => card.type === cardType)?.icon || FaCreditCard;
+    // Use controller to get values and onChange from React Hook Form
+    const {
+      field: { value, onChange },
+      fieldState: { invalid },
+    } = useController({
+      name,
+      control, // Using the control prop
+      defaultValue: "",
+    });
 
-  // Handle input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    const digitsOnly = inputValue.replace(/\D/g, "");
+    // Get the CardIcon component based on detected type
+    const CardIcon =
+      cardTypes.find((card) => card.type === cardType)?.icon || FaCreditCard;
 
-    // Limit input length based on card type
-    const isAmex = /^3[47]/.test(digitsOnly);
-    const maxLength = isAmex ? 15 : 16;
-    const truncatedValue = digitsOnly.slice(0, maxLength);
+    // Expose validateCardNumber method to parent via forwardRef
+    useImperativeHandle(ref, () => ({
+      validateCardNumber: (cardNumber: string) => {
+        if (!cardNumber) return;
 
-    // Format the value with spaces
-    const formatted = formatCardNumber(truncatedValue);
-    setFormattedValue(formatted);
+        // Format the number
+        const formattedNumber = formatCardNumber(cardNumber);
+        setFormattedValue(formattedNumber);
 
-    // Update native input (for React Hook Form)
-    e.target.value = truncatedValue;
+        // Detect card type
+        const detectedType = detectCardType(cardNumber);
+        setCardType(detectedType);
 
-    // Detect and set card type
-    const detectedType = detectCardType(truncatedValue);
-    if (detectedType !== cardType) {
-      setCardType(detectedType);
-      if (onCardTypeChange) {
-        onCardTypeChange(detectedType);
+        // Validate using Luhn algorithm
+        const digitsOnly = cardNumber.replace(/\D/g, "");
+        const isValidCard = validateLuhn(digitsOnly);
+        setIsValid(isValidCard);
+
+        return isValidCard;
+      },
+    }));
+
+    // Handle input change
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const inputValue = e.target.value;
+      const digitsOnly = inputValue.replace(/\D/g, "");
+
+      // Limit input length based on card type
+      const isAmex = /^3[47]/.test(digitsOnly);
+      const maxLength = isAmex ? 15 : 16;
+      const truncatedValue = digitsOnly.slice(0, maxLength);
+
+      // Format the value with spaces
+      const formatted = formatCardNumber(truncatedValue);
+      setFormattedValue(formatted);
+
+      // Update native input (for React Hook Form)
+      e.target.value = truncatedValue;
+      onChange(e);
+
+      // Detect and set card type
+      const detectedType = detectCardType(truncatedValue);
+      if (detectedType !== cardType) {
+        setCardType(detectedType);
+        if (onCardTypeChange) {
+          onCardTypeChange(detectedType);
+        }
       }
-    }
 
-    // Validate card using Luhn algorithm if at least 13 digits
-    if (truncatedValue.length >= 13) {
-      setIsValid(validateLuhn(truncatedValue));
-    } else {
-      setIsValid(null); // Not enough digits to validate
-    }
-  };
-
-  // Get card type display name
-  const getCardTypeDisplay = (type: string): string => {
-    const typeMap: Record<string, string> = {
-      visa: "Visa",
-      mastercard: "Mastercard",
-      amex: "American Express",
-      discover: "Discover",
-      generic: "Credit Card",
+      // Validate card using Luhn algorithm if at least 13 digits
+      if (truncatedValue.length >= 13) {
+        setIsValid(validateLuhn(truncatedValue));
+      } else {
+        setIsValid(null); // Not enough digits to validate
+      }
     };
-    return typeMap[type] || "Credit Card";
-  };
 
-  // Register the input with React Hook Form
-  const { onChange, ...rest } = register(name, {
-    setValueAs: (value: string) => value.replace(/\D/g, ""),
-  });
+    // Effect to handle initial value if set programmatically
+    React.useEffect(() => {
+      if (value) {
+        const digitsOnly = value.toString().replace(/\D/g, "");
+        // Detect card type
+        const detectedType = detectCardType(digitsOnly);
+        setCardType(detectedType);
+        // Format the number
+        const formatted = formatCardNumber(digitsOnly);
+        setFormattedValue(formatted);
+        // Validate the card
+        if (digitsOnly.length >= 13) {
+          setIsValid(validateLuhn(digitsOnly));
+        }
+      }
+    }, [value]);
 
-  return (
-    <FormControl isInvalid={!!error} isRequired={isRequired}>
-      <FormLabel htmlFor={id} color={textColor}>
-        {label}
-      </FormLabel>
+    // Get card type display name
+    const getCardTypeDisplay = (type: string): string => {
+      const typeMap: Record<string, string> = {
+        visa: "Visa",
+        mastercard: "Mastercard",
+        amex: "American Express",
+        discover: "Discover",
+        generic: "Credit Card",
+      };
+      return typeMap[type] || "Credit Card";
+    };
 
-      <InputGroup>
-        <Input
-          id={id}
-          placeholder={placeholder}
-          value={formattedValue}
-          onChange={(e) => {
-            handleChange(e);
-            onChange(e); // Call the React Hook Form onChange
-          }}
-          maxLength={cardType === "amex" ? 17 : 19} // Including spaces
-          {...rest}
-          _focus={{
-            borderColor: "brand.500",
-            boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
-          }}
-        />
+    // Register the input with React Hook Form
+    const { onChange: registerOnChange, ...rest } = register(name, {
+      setValueAs: (value: string) => value.replace(/\D/g, ""),
+    });
 
-        <InputRightElement>
-          <Flex align="center">
-            <Icon
-              as={CardIcon}
-              boxSize={6}
-              color={
-                isValid === true
-                  ? validIconColor
-                  : isValid === false
-                  ? invalidIconColor
-                  : "gray.400"
-              }
-            />
+    return (
+      <FormControl isInvalid={!!error} isRequired={isRequired}>
+        <FormLabel htmlFor={id} color={textColor}>
+          {label}
+        </FormLabel>
+
+        <InputGroup>
+          <Input
+            id={id}
+            placeholder={placeholder}
+            value={formattedValue}
+            onChange={(e) => {
+              handleChange(e);
+              registerOnChange(e); // Call the React Hook Form onChange
+            }}
+            maxLength={cardType === "amex" ? 17 : 19} // Including spaces
+            _focus={{
+              borderColor: "brand.500",
+              boxShadow: "0 0 0 1px var(--chakra-colors-brand-500)",
+            }}
+            {...rest}
+          />
+
+          <InputRightElement>
+            <Flex align="center">
+              <Icon
+                as={CardIcon}
+                boxSize={6}
+                color={
+                  isValid === true
+                    ? validIconColor
+                    : isValid === false
+                    ? invalidIconColor
+                    : "gray.400"
+                }
+              />
+            </Flex>
+          </InputRightElement>
+        </InputGroup>
+
+        {/* Show card type and validation status */}
+        {formattedValue && (
+          <Flex justify="space-between" mt={1}>
+            <Text fontSize="xs" color={mutedTextColor}>
+              {getCardTypeDisplay(cardType)}
+            </Text>
+            {isValid === true && (
+              <Text fontSize="xs" color={validIconColor}>
+                Valid card number
+              </Text>
+            )}
+            {isValid === false && (
+              <Text fontSize="xs" color={invalidIconColor}>
+                Invalid card number
+              </Text>
+            )}
           </Flex>
-        </InputRightElement>
-      </InputGroup>
+        )}
 
-      {/* Show card type and validation status */}
-      {formattedValue && (
-        <Flex justify="space-between" mt={1}>
-          <Text fontSize="xs" color={mutedTextColor}>
-            {getCardTypeDisplay(cardType)}
+        {helperText && !error && !formattedValue && (
+          <Text fontSize="xs" color={mutedTextColor} mt={1}>
+            {helperText}
           </Text>
-          {isValid === true && (
-            <Text fontSize="xs" color={validIconColor}>
-              Valid card number
-            </Text>
-          )}
-          {isValid === false && (
-            <Text fontSize="xs" color={invalidIconColor}>
-              Invalid card number
-            </Text>
-          )}
-        </Flex>
-      )}
+        )}
 
-      {helperText && !error && !formattedValue && (
-        <Text fontSize="xs" color={mutedTextColor} mt={1}>
-          {helperText}
-        </Text>
-      )}
-
-      {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-    </FormControl>
-  );
-};
+        {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
+      </FormControl>
+    );
+  }
+);
 
 export default CreditCardInput;

@@ -8,7 +8,6 @@ import {
   useColorModeValue,
   Icon,
   Flex,
-  Badge,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon } from "@chakra-ui/icons";
 

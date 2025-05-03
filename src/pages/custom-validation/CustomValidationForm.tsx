@@ -51,12 +51,17 @@ export default function CustomValidationForm() {
   const [formData, setFormData] = useState<CustomValidationFormData | null>(
     null
   );
-  const [, setPasswordStrength] = useState(0);
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(
     null
   );
   const [rangeError, setRangeError] = useState<string | undefined>(undefined);
   const alertRef = useRef<HTMLDivElement>(null);
+
+  // Reference to username validator component
+  const usernameValidatorRef = useRef<any>(null);
+  const creditCardInputRef = useRef<any>(null);
+
   const fillWithSampleData = () => {
     // Basic fields - as any to bypass type checking temporarily
     reset(customValidationFormSampleData as any);
@@ -70,6 +75,36 @@ export default function CustomValidationForm() {
 
     // Set username as available after a short delay
     setTimeout(() => {
+      // Manually trigger username availability check
+      if (usernameValidatorRef.current) {
+        usernameValidatorRef.current.checkAvailability(watch("username"));
+      }
+
+      // Manually trigger credit card validation
+      if (creditCardInputRef.current) {
+        creditCardInputRef.current.validateCardNumber(watch("creditCard"));
+      }
+
+      // Update password strength
+      if (watch("password")) {
+        const pass = watch("password");
+        // Calculate strength (similar logic as in PasswordStrengthMeter)
+        const hasUppercase = /[A-Z]/.test(pass);
+        const hasLowercase = /[a-z]/.test(pass);
+        const hasNumber = /[0-9]/.test(pass);
+        const hasSpecial = /[^A-Za-z0-9]/.test(pass);
+        const hasMinLength = pass.length >= 8;
+
+        let score = 0;
+        if (hasMinLength) score++;
+        if (hasUppercase) score++;
+        if (hasLowercase) score++;
+        if (hasNumber) score++;
+        if (hasSpecial) score++;
+
+        setPasswordStrength(score);
+      }
+
       setUsernameAvailable(true);
     }, 100);
   };
@@ -231,18 +266,18 @@ export default function CustomValidationForm() {
   const onSubmit = (data: CustomValidationFormData) => {
     // Simple submission without complex validation that might cause blocks
     console.log("Form submitted:", data);
-    
+
     // Set form data and success state
     setFormData(data);
     setIsSubmitSuccessful(true);
-    
+
     // Scroll to success message
     if (alertRef.current) {
       alertRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     } else {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
-    
+
     // Hide success message after 8 seconds
     setTimeout(() => setIsSubmitSuccessful(false), 8000);
   };
@@ -514,6 +549,7 @@ export const ValidationProvider = ({ children }) => {
                         />
                       </Tooltip>
                     </Flex>
+
                     <Text color={mutedTextColor}>
                       This form demonstrates advanced validation techniques with
                       real-time feedback.
@@ -535,6 +571,7 @@ export const ValidationProvider = ({ children }) => {
                       <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                         {/* Username with availability check */}
                         <UsernameValidator
+                          ref={usernameValidatorRef}
                           id="username"
                           name="username"
                           label="Username"
@@ -696,6 +733,7 @@ export const ValidationProvider = ({ children }) => {
                       </Text>
 
                       <CreditCardInput
+                        ref={creditCardInputRef}
                         id="creditCard"
                         name="creditCard"
                         label="Credit Card Number"
