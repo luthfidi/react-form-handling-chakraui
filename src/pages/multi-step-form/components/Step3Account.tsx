@@ -10,13 +10,13 @@ import {
   Checkbox,
   FormErrorMessage,
   VStack,
-  HStack,
   useColorModeValue,
   InputGroup,
   InputRightElement,
   IconButton,
   Text,
   Tooltip,
+  Flex,
 } from "@chakra-ui/react";
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { MdAutoFixHigh } from "react-icons/md";
@@ -175,8 +175,13 @@ const Step3Account = () => {
             <FormErrorMessage>{errors.termsAccepted.message}</FormErrorMessage>
           )}
         </FormControl>
-
-        <HStack justifyContent="space-between" pt={4}>
+        
+        <Flex
+          justifyContent="space-between"
+          flexDirection={{ base: "column", sm: "row" }}
+          pt={4}
+          gap={3}
+        >
           <Button variant="outline" colorScheme="brand" onClick={prevStep}>
             Previous
           </Button>
@@ -185,10 +190,11 @@ const Step3Account = () => {
             colorScheme="brand"
             size="md"
             isLoading={isSubmitting}
+            width={{ base: "100%", sm: "auto" }}
           >
             Complete Registration
           </Button>
-        </HStack>
+        </Flex>
       </VStack>
     </Box>
   );

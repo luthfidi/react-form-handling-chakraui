@@ -312,58 +312,60 @@ const onSubmit = (data: FormData) => {
         <TabPanels>
           <TabPanel>
             <VStack spacing={8} w="full" py={5}>
-              <div ref={alertRef}>
-                {isSubmitSuccessful && (
-                  <Alert
-                    status="success"
-                    variant="subtle"
-                    flexDirection="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    textAlign="center"
-                    borderRadius="md"
-                    p={6}
-                    bg={successBg}
-                  >
-                    <AlertIcon boxSize="40px" mr={0} />
-                    <AlertTitle mt={4} mb={1} fontSize="lg">
-                      Form Submitted Successfully!
-                    </AlertTitle>
-                    <AlertDescription maxWidth="sm" color={textColor}>
-                      Your nested form data has been submitted successfully.
-                    </AlertDescription>
+              {isSubmitSuccessful && (
+                <Alert
+                  status="success"
+                  variant="subtle"
+                  flexDirection="column"
+                  alignItems="center"
+                  justifyContent="center"
+                  textAlign="center"
+                  borderRadius="md"
+                  p={6}
+                  bg={successBg}
+                >
+                  <AlertIcon boxSize="40px" mr={0} />
+                  <AlertTitle mt={4} mb={1} fontSize="lg">
+                    Form Submitted Successfully!
+                  </AlertTitle>
+                  <AlertDescription maxWidth="sm" color={textColor}>
+                    Your nested form data has been submitted successfully.
+                  </AlertDescription>
 
-                    {formData && (
-                      <Box
-                        mt={4}
-                        p={3}
-                        bg={cardBg}
-                        rounded="md"
-                        width="full"
-                        textAlign="left"
-                        borderWidth="1px"
-                        borderColor={cardBorder}
-                      >
-                        <Text fontWeight="bold" mb={2}>
-                          Submitted Data:
-                        </Text>
+                  {formData && (
+                    <Box
+                      ref={alertRef}
+                      mt={4}
+                      p={3}
+                      bg={cardBg}
+                      rounded="md"
+                      width="full"
+                      textAlign="left"
+                      borderWidth="1px"
+                      borderColor={cardBorder}
+                      overflowX="auto"
+                    >
+                      <Text fontWeight="bold" mb={2}>
+                        Submitted Data:
+                      </Text>
+                      <Box overflowX="auto" maxWidth="100%">
                         <CodeBlock
                           code={JSON.stringify(formData, null, 2)}
                           language="json"
                           showLineNumbers={false}
                         />
                       </Box>
-                    )}
+                    </Box>
+                  )}
 
-                    <CloseButton
-                      position="absolute"
-                      right="8px"
-                      top="8px"
-                      onClick={() => setIsSubmitSuccessful(false)}
-                    />
-                  </Alert>
-                )}
-              </div>
+                  <CloseButton
+                    position="absolute"
+                    right="8px"
+                    top="8px"
+                    onClick={() => setIsSubmitSuccessful(false)}
+                  />
+                </Alert>
+              )}
 
               <Box
                 as="form"

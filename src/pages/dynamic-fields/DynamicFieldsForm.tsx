@@ -69,12 +69,42 @@ export default function DynamicFieldsForm() {
         index={activeTab}
         onChange={handleTabChange}
       >
-        <TabList>
-          <Tab fontWeight="medium">Templates</Tab>
-          <Tab fontWeight="medium">Editor</Tab>
-          <Tab fontWeight="medium">Preview</Tab>
-          <Tab fontWeight="medium">Code</Tab>
-          <Tab fontWeight="medium">Documentation</Tab>
+        <TabList overflowX="auto" overflowY="hidden" maxWidth="100%">
+          <Tab
+            fontWeight="medium"
+            fontSize={{ base: "sm", md: "md" }}
+            px={{ base: 2, md: 4 }}
+          >
+            Templates
+          </Tab>
+          <Tab
+            fontWeight="medium"
+            fontSize={{ base: "sm", md: "md" }}
+            px={{ base: 2, md: 4 }}
+          >
+            Editor
+          </Tab>
+          <Tab
+            fontWeight="medium"
+            fontSize={{ base: "sm", md: "md" }}
+            px={{ base: 2, md: 4 }}
+          >
+            Preview
+          </Tab>
+          <Tab
+            fontWeight="medium"
+            fontSize={{ base: "sm", md: "md" }}
+            px={{ base: 2, md: 4 }}
+          >
+            Code
+          </Tab>
+          <Tab
+            fontWeight="medium"
+            fontSize={{ base: "sm", md: "md" }}
+            px={{ base: 2, md: 4 }}
+          >
+            Documentation
+          </Tab>
         </TabList>
         <TabPanels>
           {/* Templates Tab */}
@@ -228,18 +258,34 @@ export default function DynamicFieldsForm() {
             </VStack>
           </TabPanel>
 
-          {/* Documentation Tab */}
+          {/* Documentation Tab - FIXED FOR MOBILE */}
           <TabPanel>
             <VStack spacing={4} align="start" w="full" py={5}>
-              <Text fontSize="xl" fontWeight="bold" color={textColor}>
+              <Text
+                fontSize={{ base: "lg", md: "xl" }}
+                fontWeight="bold"
+                color={textColor}
+                width="100%"
+              >
                 Dynamic Form Generation Documentation
               </Text>
-              <Text color={textColor}>
+
+              <Text
+                color={textColor}
+                fontSize={{ base: "sm", md: "md" }}
+                width="100%"
+              >
                 This form demonstrates how to create a dynamic form builder that
                 allows users to:
               </Text>
 
-              <Box as="ul" pl={5} color={textColor}>
+              <Box
+                as="ul"
+                pl={5}
+                color={textColor}
+                width="100%"
+                fontSize={{ base: "sm", md: "md" }}
+              >
                 <Box as="li">
                   Choose from predefined form templates or start from scratch
                 </Box>
@@ -259,12 +305,12 @@ export default function DynamicFieldsForm() {
 
               <SimpleGrid
                 columns={{ base: 1, md: 2 }}
-                spacing={8}
-                width="full"
+                spacing={{ base: 4, md: 8 }}
+                width="100%"
                 mt={4}
               >
                 <Box
-                  p={4}
+                  p={{ base: 3, md: 4 }}
                   bg={cardBg}
                   borderWidth="1px"
                   borderColor={cardBorder}
@@ -272,7 +318,7 @@ export default function DynamicFieldsForm() {
                   boxShadow="sm"
                 >
                   <Text
-                    fontSize="lg"
+                    fontSize={{ base: "md", md: "lg" }}
                     fontWeight="bold"
                     mb={3}
                     color={textColor}
@@ -280,26 +326,41 @@ export default function DynamicFieldsForm() {
                     Key Concepts
                   </Text>
                   <VStack spacing={2} align="start">
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Dynamic schema generation with Zod
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Form state management with React Hook Form
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Programmatic validation rule creation
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Conditional field rendering
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Form configuration serialization
                     </Text>
                   </VStack>
                 </Box>
 
                 <Box
-                  p={4}
+                  p={{ base: 3, md: 4 }}
                   bg={cardBg}
                   borderWidth="1px"
                   borderColor={cardBorder}
@@ -307,7 +368,7 @@ export default function DynamicFieldsForm() {
                   boxShadow="sm"
                 >
                   <Text
-                    fontSize="lg"
+                    fontSize={{ base: "md", md: "lg" }}
                     fontWeight="bold"
                     mb={3}
                     color={textColor}
@@ -315,31 +376,51 @@ export default function DynamicFieldsForm() {
                     Real World Usage
                   </Text>
                   <VStack spacing={2} align="start">
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Admin interfaces for CMS systems
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Survey and questionnaire builders
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Data collection tools with variable fields
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Form generators for non-technical users
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       • Dynamic preferences or settings forms
                     </Text>
                   </VStack>
                 </Box>
               </SimpleGrid>
 
-              <Box width="full" mt={4}>
-                <Text fontSize="lg" fontWeight="bold" mb={3} color={textColor}>
+              <Box width="100%" mt={4}>
+                <Text
+                  fontSize={{ base: "md", md: "lg" }}
+                  fontWeight="bold"
+                  mb={3}
+                  color={textColor}
+                >
                   Implementation Notes
                 </Text>
                 <Box
-                  p={4}
+                  p={{ base: 3, md: 4 }}
                   bg={cardBg}
                   borderWidth="1px"
                   borderColor={cardBorder}
@@ -347,20 +428,29 @@ export default function DynamicFieldsForm() {
                   boxShadow="sm"
                 >
                   <VStack spacing={3} align="start">
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       This implementation uses a combination of Zod for schema
                       validation and React Hook Form for form state management.
                       The form configuration is stored as a JSON object that
                       defines the form's structure, fields, and validation
                       rules.
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       The schema generator dynamically creates Zod validation
                       schemas based on the field configurations. This approach
                       allows for powerful validation logic without having to
                       write custom validation code for each form.
                     </Text>
-                    <Text color={mutedTextColor}>
+                    <Text
+                      color={mutedTextColor}
+                      fontSize={{ base: "xs", md: "sm" }}
+                    >
                       In a real-world scenario, these form configurations could
                       be stored in a database and loaded on demand, allowing for
                       completely dynamic form rendering based on external data
