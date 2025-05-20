@@ -45,9 +45,8 @@ export default function BasicRegistrationForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitSuccessful, setIsSubmitSuccessful] = useState(false);
-  const [formData, setFormData] = useState<BasicRegistrationFormData | null>(
-    null
-  );
+  const [formData, setFormData] = useState<BasicRegistrationFormData | null>(null);
+  const [termsChecked, setTermsChecked] = useState(false);
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -61,6 +60,7 @@ export default function BasicRegistrationForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
+    setValue,
   } = useForm<BasicRegistrationFormData>({
     resolver: zodResolver(basicRegistrationSchema),
     defaultValues: {
@@ -77,7 +77,18 @@ export default function BasicRegistrationForm() {
 
   // Function to fill the form with sample data
   const fillWithSampleData = () => {
+    // Reset form with sample data
     reset(basicRegistrationSampleData);
+    
+    // Force the checkbox to be checked using our local state
+    setTermsChecked(true);
+    
+    // Force the terms field to be true for form validation
+    setValue("terms", true, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
   };
 
   const onSubmit = (data: BasicRegistrationFormData) => {
@@ -403,7 +414,18 @@ const onSubmit = (data: BasicRegistrationFormData) => {
                     </FormControl>
 
                     <FormControl isInvalid={!!errors.terms}>
-                      <Checkbox {...register("terms")} colorScheme="brand">
+                      <Checkbox 
+                        id="terms"
+                        {...register("terms")}
+                        isChecked={termsChecked} 
+                        onChange={(e) => {
+                          setTermsChecked(e.target.checked);
+                          setValue("terms", e.target.checked, {
+                            shouldValidate: true,
+                          });
+                        }}
+                        colorScheme="brand"
+                      >
                         <Text color={textColor}>
                           I agree to the Terms of Service and Privacy Policy
                         </Text>

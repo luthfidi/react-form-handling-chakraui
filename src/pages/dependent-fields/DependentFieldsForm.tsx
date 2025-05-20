@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -84,6 +84,8 @@ export default function DependentFieldsForm() {
     },
   });
 
+  const alertRef = useRef<HTMLDivElement>(null);
+
   // Watch for changes to fields that determine conditional rendering
   const employmentType = watch("employmentType");
   const productType = watch("productType");
@@ -97,6 +99,17 @@ export default function DependentFieldsForm() {
         setIsSubmitSuccessful(true);
         reset();
         resolve();
+
+        // Scroll to top to show success message
+        if (alertRef.current) {
+          alertRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        } else {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+
         // Hide success message after 8 seconds
         setTimeout(() => setIsSubmitSuccessful(false), 8000);
       }, 1500);
@@ -503,6 +516,7 @@ return (
             <VStack spacing={8} w="full" py={5}>
               {isSubmitSuccessful && (
                 <Alert
+                  ref={alertRef}
                   status="success"
                   variant="subtle"
                   flexDirection="column"
