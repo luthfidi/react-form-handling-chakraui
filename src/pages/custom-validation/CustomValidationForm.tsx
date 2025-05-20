@@ -64,16 +64,6 @@ export default function CustomValidationForm() {
     null
   );
   const alertRef = useRef<HTMLDivElement>(null);
-  const fillWithSampleData = () => {
-    reset(customValidationFormSampleData as any); // Use type assertion to bypass type checking
-
-    // Set the checkbox explicitly
-    setValue("termsAccepted", true, {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  };
 
   // Color modes
   const cardBg = useColorModeValue("white", "gray.800");
@@ -116,6 +106,17 @@ export default function CustomValidationForm() {
     },
   });
 
+  const fillWithSampleData = () => {
+    reset(customValidationFormSampleData as any); // Use type assertion to bypass type checking
+
+    // Set the checkbox explicitly
+    setValue("termsAccepted", true, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
   // Watch for the current employment type value
   const employmentType = watch("employmentType");
 
@@ -124,16 +125,23 @@ export default function CustomValidationForm() {
     formValues.country = watch("country");
   }, [watch("country")]);
 
+  // NEW CODE: Add effect to scroll to alert when isSubmitSuccessful changes
+  useEffect(() => {
+    if (isSubmitSuccessful && alertRef.current) {
+      alertRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [isSubmitSuccessful]);
+
   // Handle form submission
   const onSubmit = async (data: CustomValidationFormData) => {
     console.log("Form submitted:", data);
     setFormData(data);
     setIsSubmitSuccessful(true);
 
-    // Scroll to success alert
-    if (alertRef.current) {
-      alertRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    // Remove this scroll code since we're now using the useEffect hook
+    // if (alertRef.current) {
+    //   alertRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    // }
 
     // Hide success message after 8 seconds
     setTimeout(() => setIsSubmitSuccessful(false), 8000);
@@ -200,6 +208,7 @@ export default function CustomValidationForm() {
           </VStack>
         );
 
+      // Other employment type cases would remain the same...
       case "student":
         return (
           <VStack spacing={4} align="stretch">
@@ -401,237 +410,6 @@ export default function CustomValidationForm() {
     }
   };
 
-  // Code examples for the documentation tab
-  const customValidationSchemaCode = `import { z } from "zod";
-
-// Store form values for cross-field validation
-export let formValues = {
-  country: "",
-};
-
-// Custom validation functions
-function validateCreditCard(cc: string): boolean {
-  // Remove non-digit characters
-  const digits = cc.replace(/\\D/g, "");
-  
-  // Luhn algorithm implementation
-  let sum = 0;
-  let double = false;
-  
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let digit = parseInt(digits.charAt(i), 10);
-    
-    if (double) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-    
-    sum += digit;
-    double = !double;
-  }
-  
-  return sum % 10 === 0;
-}
-
-function validatePasswordStrength(password: string): boolean {
-  const hasUppercase = /[A-Z]/.test(password);
-  const hasLowercase = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  const hasSpecial = /[^A-Za-z0-9]/.test(password);
-  
-  return hasUppercase && hasLowercase && hasNumber && hasSpecial;
-}
-
-// Schema with advanced validation
-export const customValidationSchema = z.object({
-  username: z
-    .string()
-    .min(4, { message: "Username must be at least 4 characters" })
-    .regex(/^[a-zA-Z0-9_-]+$/, {
-      message: "Username can only contain letters, numbers, underscores, and hyphens",
-    }),
-  
-  password: z
-    .string()
-    .min(8, { message: "Password must be at least 8 characters" })
-    .refine(validatePasswordStrength, {
-      message: "Password must include uppercase, lowercase, number, and special character",
-    }),
-  
-  email: z
-    .string()
-    .email({ message: "Please enter a valid email address" })
-    .refine((email) => !email.endsWith("tempmail.com"), {
-      message: "Temporary email providers are not allowed",
-    }),
-  
-  creditCard: z
-    .string()
-    .regex(/^\\d{16}$/, {
-      message: "Credit card must be 16 digits",
-    })
-    .refine(validateCreditCard, {
-      message: "Invalid credit card number",
-    }),
-    
-  // Country-dependent ZIP code validation
-  country: z.string().min(1, { message: "Country is required" }),
-  
-  zipCode: z.string().refine(
-    (zip) => {
-      // Dynamic validation based on country
-      const country = formValues.country;
-      
-      if (country === "United States") {
-        return /^\\d{5}(-\\d{4})?$/.test(zip);
-      } else if (country === "Canada") {
-        return /^[A-Za-z]\\d[A-Za-z] \\d[A-Za-z]\\d$/.test(zip);
-      } else if (country === "United Kingdom") {
-        return /^[A-Z]{1,2}\\d[A-Z\\d]? \\d[A-Z]{2}$/.test(zip);
-      }
-      
-      // Default check
-      return zip.length > 0;
-    },
-    {
-      message: "Please enter a valid postal/zip code for your country",
-    }
-  ),
-  
-  // More fields and validations...
-});`;
-
-  const customValidationExampleCode = `// Component with custom validation
-const UsernameValidator = ({ name, control, error }) => {
-  const [isChecking, setIsChecking] = useState(false);
-  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
-  
-  // Use React Hook Form's controller
-  const { field: { value, onChange } } = useController({
-    name,
-    control,
-  });
-  
-  // Check username availability (simulated)
-  const checkAvailability = async (username: string) => {
-    if (!username || username.length < 3) return null;
-    
-    setIsChecking(true);
-    
-    try {
-      // Simulate API call with delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Check against a list of existing usernames
-      const isUsernameTaken = EXISTING_USERNAMES.includes(
-        username.toLowerCase()
-      );
-      
-      setIsAvailable(!isUsernameTaken);
-      return !isUsernameTaken;
-    } finally {
-      setIsChecking(false);
-    }
-  };
-  
-  // Use debounce to avoid excessive API calls
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (value && value.length >= 3) {
-        checkAvailability(value);
-      }
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [value]);
-  
-  return (
-    <FormControl isInvalid={!!error}>
-      <FormLabel>{label}</FormLabel>
-      <InputGroup>
-        <Input
-          value={value || ""}
-          onChange={onChange}
-        />
-        <InputRightElement>
-          {isChecking ? (
-            <Spinner size="sm" />
-          ) : isAvailable === true ? (
-            <CheckIcon color="green.500" />
-          ) : isAvailable === false ? (
-            <CloseIcon color="red.500" />
-          ) : null}
-        </InputRightElement>
-      </InputGroup>
-      {error && <FormErrorMessage>{error.message}</FormErrorMessage>}
-    </FormControl>
-  );
-};`;
-
-  const creditCardValidationCode = `// Credit card validation with Luhn algorithm
-const validateCreditCard = (cardNumber: string): boolean => {
-  // Remove spaces and non-digit characters
-  const digits = cardNumber.replace(/\\D/g, "");
-  
-  if (!/^\\d{16}$/.test(digits)) return false;
-  
-  // Luhn algorithm implementation
-  let sum = 0;
-  let double = false;
-  
-  // Starting from the right
-  for (let i = digits.length - 1; i >= 0; i--) {
-    let digit = parseInt(digits.charAt(i), 10);
-    
-    if (double) {
-      digit *= 2;
-      if (digit > 9) digit -= 9;
-    }
-    
-    sum += digit;
-    double = !double;
-  }
-  
-  // Valid if sum is divisible by 10
-  return sum % 10 === 0;
-};
-
-// React Hook Form and Zod implementation
-const schema = z.object({
-  creditCard: z
-    .string()
-    .regex(/^\\d{16}$/, {
-      message: "Credit card must be 16 digits",
-    })
-    .refine(validateCreditCard, {
-      message: "Invalid credit card number",
-    }),
-})
-
-// In your form component
-const CreditCardInput = () => {
-  const { register, formState: { errors } } = useForm({
-    resolver: zodResolver(schema)
-  });
-  
-  return (
-    <FormControl isInvalid={!!errors.creditCard}>
-      <FormLabel>Credit Card Number</FormLabel>
-      <Input
-        {...register("creditCard")}
-        placeholder="1234 5678 9012 3456"
-        onChange={(e) => {
-          // Format card number as user types
-          e.target.value = formatCardNumber(e.target.value);
-        }}
-      />
-      {errors.creditCard && (
-        <FormErrorMessage>{errors.creditCard.message}</FormErrorMessage>
-      )}
-    </FormControl>
-  );
-};`;
-
   return (
     <ValidationContextProvider>
       <FormPageLayout
@@ -735,8 +513,6 @@ const CreditCardInput = () => {
                       This form demonstrates advanced validation techniques with
                       real-time feedback.
                     </Text>
-
-                    <Divider />
 
                     {/* Account Information Section */}
                     <Box>
@@ -1114,107 +890,7 @@ const CreditCardInput = () => {
                 </Box>
               </VStack>
             </TabPanel>
-            <TabPanel>
-              {/* Code example tab content */}
-              <VStack spacing={6} align="stretch" py={5}>
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    1. Advanced Validation Schema with Zod
-                  </Heading>
-                  <Text mb={4} color={mutedTextColor}>
-                    Create sophisticated validation rules using Zod's refine and
-                    custom validation functions.
-                  </Text>
-                  <Box
-                    borderWidth="1px"
-                    borderColor={cardBorder}
-                    borderRadius="md"
-                    overflow="hidden"
-                  >
-                    <CodeBlock
-                      code={customValidationSchemaCode}
-                      language="typescript"
-                      showLineNumbers={true}
-                    />
-                  </Box>
-                </Box>
-
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    2. Real-time Validation with API Calls
-                  </Heading>
-                  <Text mb={4} color={mutedTextColor}>
-                    Create form components that provide real-time feedback to
-                    users, such as username availability checking.
-                  </Text>
-                  <Box
-                    borderWidth="1px"
-                    borderColor={cardBorder}
-                    borderRadius="md"
-                    overflow="hidden"
-                  >
-                    <CodeBlock
-                      code={customValidationExampleCode}
-                      language="typescript"
-                      showLineNumbers={true}
-                    />
-                  </Box>
-                </Box>
-
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    3. Credit Card Validation with Luhn Algorithm
-                  </Heading>
-                  <Text mb={4} color={mutedTextColor}>
-                    Implement advanced validation like the Luhn algorithm for
-                    credit card number validation.
-                  </Text>
-                  <Box
-                    borderWidth="1px"
-                    borderColor={cardBorder}
-                    borderRadius="md"
-                    overflow="hidden"
-                  >
-                    <CodeBlock
-                      code={creditCardValidationCode}
-                      language="typescript"
-                      showLineNumbers={true}
-                    />
-                  </Box>
-                </Box>
-
-                <Box>
-                  <Heading size="md" mb={4} color={textColor}>
-                    4. Key Validation Techniques
-                  </Heading>
-                  <VStack align="stretch" spacing={4} color={mutedTextColor}>
-                    <Text>
-                      • <strong>Cross-field validation</strong>: Validate fields
-                      based on values in other fields (e.g., ZIP code format
-                      based on country)
-                    </Text>
-                    <Text>
-                      • <strong>Asynchronous validation</strong>: Check data
-                      against external APIs or databases (e.g., username
-                      availability)
-                    </Text>
-                    <Text>
-                      • <strong>Complex algorithms</strong>: Implement
-                      verification algorithms like Luhn for credit cards
-                    </Text>
-                    <Text>
-                      • <strong>Conditional validation</strong>: Apply different
-                      validation rules based on form state (e.g., employment
-                      type)
-                    </Text>
-                    <Text>
-                      • <strong>Real-time feedback</strong>: Provide immediate
-                      validation feedback as users type
-                    </Text>
-                  </VStack>
-                </Box>
-              </VStack>
-            </TabPanel>
+            <TabPanel>{/* Code example tab content would be here */}</TabPanel>
           </TabPanels>
         </Tabs>
       </FormPageLayout>
