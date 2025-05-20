@@ -1,0 +1,6 @@
+# robots.txt for React Form Mastery
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://react-form-mastery.com/sitemap.xml

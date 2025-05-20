@@ -93,7 +93,16 @@ export default function Header() {
             direction={"row"}
             spacing={6}
           >
-            <Button onClick={toggleColorMode} size="sm" rounded="md">
+            <Button
+              onClick={toggleColorMode}
+              size="sm"
+              rounded="md"
+              aria-label={
+                colorMode === "light"
+                  ? "Switch to dark mode"
+                  : "Switch to light mode"
+              }
+            >
               {colorMode === "light" ? <MoonIcon /> : <SunIcon />}
             </Button>
           </Stack>
