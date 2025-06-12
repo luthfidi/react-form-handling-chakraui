@@ -308,6 +308,6 @@ const NAV_ITEMS: Array<NavItem> = [
   },
   {
     label: "GitHub",
-    href: "https://github.com/luthfidi/react-form-handling-chakraui",
+    href: "https://github.com/luthfidi/react-form-mastery",
   },
 ];
